@@ -1,3 +1,4 @@
 # BabyBlockchain
-## 💭 Клас KeyPair
-## ❓ Клас Signature
+## Загальна інформація 
+## Клас KeyPair
+## Клас Signature
