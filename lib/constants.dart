@@ -9,7 +9,11 @@ const Color AccentColor = Colors.blue;
 // ignore: constant_identifier_names
 const Color BackgroundColor = Colors.white70;
 // ignore: constant_identifier_names
-const Color ShadowColor = Colors.black54;
+const Color DisabledColor = Colors.black54;
+// ignore: constant_identifier_names
+const Color IndicatorColor = Colors.yellow;
+// ignore: non_constant_identifier_names
+Color ShadowColor = Colors.blueGrey.shade50.withOpacity(0.5);
 // ignore: non_constant_identifier_names
 Color SplashColor = Colors.blue.shade100;
 

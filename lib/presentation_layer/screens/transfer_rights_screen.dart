@@ -1,4 +1,6 @@
 import 'package:baby_blockchain/constants.dart';
+import 'package:baby_blockchain/domain_layer/key_pair.dart';
+import 'package:baby_blockchain/domain_layer/signature.dart';
 import 'package:flutter/material.dart';
 
 class TransferRightsScreen extends StatefulWidget {
@@ -9,12 +11,17 @@ class TransferRightsScreen extends StatefulWidget {
 }
 
 class _TransferRightsScreenState extends State<TransferRightsScreen> {
+  Signature signature =
+      Signature.signData({"id": 12, "amount": 0xff}, currentKeyPair);
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Text(
-        "transfer rights screen",
-        style: TextStyle(fontSize: mediumFontSize),
+        Signature.verifySignature(
+                signature, {"id": 12, "amount": 0xff}, currentKeyPair)
+            .toString(),
+        style: const TextStyle(fontSize: mediumFontSize),
       ),
     );
   }
