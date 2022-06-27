@@ -31,8 +31,8 @@
 ## Клас Transaction
 //TODO
 ## Клас Hash
-Для гешування даних використовується алгоритм SHA-2 (256-bit версія). Опис використовуваної реалізації алгоритму SHA-256 наведено в [документації](https://pub.dev/packages/crypto).
 #### [hash.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/hash.dart)
+Для гешування даних використовується алгоритм SHA-2 (256-bit версія). Опис використовуваної реалізації алгоритму SHA-256 наведено в [документації](https://pub.dev/packages/crypto).
 Методи:
 - toSHA256(input) - виконує гешування вхідних даних.
 - matches(value, hash) - перевіряє, чи є значення hash результатом гешування значення value.
