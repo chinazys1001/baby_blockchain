@@ -1,40 +1,50 @@
 import 'package:flutter/foundation.dart';
 import 'package:crypton/crypton.dart';
 
-late KeyPair currentKeyPair; // the generated value is stored here
-
+/// Custom implementation of [KeyPair] class. Usage description can be found in README.
+/// See https://pub.dev/packages/crypton for implemetation of [ECKeypair].
 class KeyPair {
-  static late ECPublicKey _publicKey;
-  // underscore stands for private modifier in dart
-  static late ECPrivateKey _privateKey;
+  /// Value of [privateKey] can be used within [KeyPair] class and its subcalsses only
+  KeyPair({required ECPrivateKey privateKey, required this.publicKey})
+      : _privateKey = privateKey;
 
-  set publicKey(newValue) => _publicKey = newValue;
-  ECPublicKey get publicKey => _publicKey;
+  /// Value of [publicKey].
+  final ECPublicKey publicKey;
+
+  final ECPrivateKey
+      _privateKey; //underscore stands for private modifier in dart
 
   // since privateKey is a private modifier, protected get method should be used
   // to transmit the value to the subclasses(e.g. Signature class)
   @protected
-  set privateKey(newValue) => _privateKey = newValue;
-  @protected
   ECPrivateKey get privateKey => _privateKey;
 
-  // randomly generating elliptic curve key pair
+  /// Randomly generating elliptic curve key pair.
+  /// See https://pub.dev/packages/crypton for implemetation of [ECKeypair.fromRandom].
   static KeyPair genKeyPair() {
-    KeyPair keyPair = KeyPair();
-
     ECKeypair ecKeypair = ECKeypair.fromRandom();
-    keyPair.publicKey = ecKeypair.publicKey;
-    keyPair.privateKey = ecKeypair.privateKey;
-
-    return keyPair;
+    return KeyPair(
+      privateKey: ecKeypair.privateKey,
+      publicKey: ecKeypair.publicKey,
+    );
   }
 
+  /// Testing only
   void printKeyPair() {
     if (kDebugMode) {
-      print("Public key: ${_publicKey.toString()}");
-    }
-    if (kDebugMode) {
+      print("------------------------Key Pair------------------------");
+      print("Public key: ${publicKey.toString()}");
       print("Private key: ${_privateKey.toString()}");
+      print("--------------------------------------------------------");
     }
+  }
+
+  @override
+  String toString() {
+    Map<String, dynamic> mapKeyPair = {
+      "public key": publicKey,
+      "private key": _privateKey,
+    };
+    return mapKeyPair.toString();
   }
 }

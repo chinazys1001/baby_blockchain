@@ -14,7 +14,8 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        currentKeyPair.publicKey.toString(),
+        '',
+        //currentKeyPair.publicKey.toString(),
         style: const TextStyle(fontSize: mediumFontSize),
       ),
     );

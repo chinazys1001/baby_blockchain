@@ -11,16 +11,11 @@ class TransferRightsScreen extends StatefulWidget {
 }
 
 class _TransferRightsScreenState extends State<TransferRightsScreen> {
-  Signature signature =
-      Signature.signData({"id": 12, "amount": 0xff}, currentKeyPair);
-
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        Signature.verifySignature(
-                signature, {"id": 12, "amount": 0xff}, currentKeyPair)
-            .toString(),
+        "",
         style: const TextStyle(fontSize: mediumFontSize),
       ),
     );

@@ -3,39 +3,29 @@ import 'dart:core';
 import 'dart:typed_data';
 
 import 'package:baby_blockchain/domain_layer/key_pair.dart';
-import 'package:flutter/foundation.dart';
 
-// privateKey is a private modifier, hence Signature extends KeyPair to get access to privateKey
+/// Custom implementation of [Signature] class. Usage description can be found in README.
+/// [Signature] uses private key to sign
 class Signature extends KeyPair {
-  static late Uint8List _bytes; // signature value in bytes
-
-  set bytes(newValue) => _bytes = newValue;
-  Uint8List get bytes => _bytes;
+  Signature({required super.privateKey, required super.publicKey});
 
   // input: map(stands for operation to be signed), KeyPair(only privateKey is used)
   // output: signature(list of bytes)
-  static Signature signData(Map<String, int> operation, KeyPair keyPair) {
-    Signature signature = Signature();
-
-    Uint8List operationBytes = utf8.encode(operation.toString()) as Uint8List;
+  /// Create the signature of a SHA256-hashed data using the associated [KeyPair] private key
+  static Uint8List signData(String data, KeyPair keyPair) {
+    Uint8List operationBytes = utf8.encode(data) as Uint8List;
     Uint8List signatureBytes =
         keyPair.privateKey.createSHA256Signature(operationBytes);
-    signature.bytes = signatureBytes;
 
-    return signature;
+    return signatureBytes;
   }
 
+  /// Verify the signature of a SHA256-hashed operation signed with the associated [KeyPair] private key
   static bool verifySignature(
-      Signature signature, Map<String, int> operation, KeyPair keyPair) {
-    Uint8List operationBytes = utf8.encode(operation.toString()) as Uint8List;
-    bool isValid = keyPair.publicKey
-        .verifySHA256Signature(operationBytes, signature.bytes);
+      Uint8List signature, String operation, KeyPair keyPair) {
+    Uint8List operationBytes = utf8.encode(operation) as Uint8List;
+    bool isValid =
+        keyPair.publicKey.verifySHA256Signature(operationBytes, signature);
     return isValid;
-  }
-
-  void printSignature() {
-    if (kDebugMode) {
-      print("Signature: ${bytes.toString()}");
-    }
   }
 }

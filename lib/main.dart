@@ -1,4 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:baby_blockchain/data_layer/firebase_options.dart';
+import 'package:baby_blockchain/domain_layer/account.dart';
+import 'package:baby_blockchain/domain_layer/hash.dart';
+import 'package:baby_blockchain/domain_layer/key_pair.dart';
+import 'package:baby_blockchain/domain_layer/signature.dart';
 import 'package:baby_blockchain/presentation_layer/screens/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
