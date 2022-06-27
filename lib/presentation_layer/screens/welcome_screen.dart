@@ -35,23 +35,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 children: [
                   const LoadingIndicator(),
                   const SizedBox(height: 5),
-                  const Text(
+                  Text(
                     "Release date: 12.06.2022",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: bigFontSize,
                       color: LightColor,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: MediaQuery.of(context).size.width < 600
+                          ? FontWeight.bold
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 5),
                   RichText(
                     textAlign: TextAlign.justify,
                     text: TextSpan(
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: bigFontSize,
                         color: LightColor,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: MediaQuery.of(context).size.width < 600
+                            ? FontWeight.bold
+                            : null,
                       ),
                       children: <TextSpan>[
                         const TextSpan(
@@ -105,7 +109,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         child: ListView(
                           shrinkWrap: true,
                           children: [
-                            const SizedBox(height: 15),
+                            const SizedBox(height: 13),
                             const Text(
                               'ДИСКЛЕЙМЕР',
                               textAlign: TextAlign.center,
@@ -127,7 +131,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 fontSize: smallFontSize,
                               ),
                             ),
-                            const SizedBox(height: 15),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.width < 600
+                                  ? 15
+                                  : 25,
+                            ),
                             MaterialButton(
                               shape: const StadiumBorder(),
                               padding: EdgeInsets.all(
@@ -165,7 +173,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 15),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.width < 600
+                                  ? 13
+                                  : 0,
+                            ),
                           ],
                         )).asGlass(
                       clipBorderRadius: BorderRadius.circular(20),
