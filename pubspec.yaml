@@ -38,6 +38,9 @@ dependencies:
   flutter_spinkit: ^5.1.0
   glass: ^1.0.1+1
 
+  # service
+  url_launcher: ^6.1.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,5 +1,4 @@
 import 'package:baby_blockchain/constants.dart';
-import 'package:baby_blockchain/domain_layer/key_pair.dart';
 import 'package:flutter/material.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -12,11 +11,10 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
-        '',
-        //currentKeyPair.publicKey.toString(),
-        style: const TextStyle(fontSize: mediumFontSize),
+        'account screen',
+        style: TextStyle(fontSize: mediumFontSize),
       ),
     );
   }

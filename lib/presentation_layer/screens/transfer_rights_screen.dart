@@ -1,6 +1,4 @@
 import 'package:baby_blockchain/constants.dart';
-import 'package:baby_blockchain/domain_layer/key_pair.dart';
-import 'package:baby_blockchain/domain_layer/signature.dart';
 import 'package:flutter/material.dart';
 
 class TransferRightsScreen extends StatefulWidget {
@@ -13,10 +11,10 @@ class TransferRightsScreen extends StatefulWidget {
 class _TransferRightsScreenState extends State<TransferRightsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
-        "",
-        style: const TextStyle(fontSize: mediumFontSize),
+        "transfer rights screen",
+        style: TextStyle(fontSize: mediumFontSize),
       ),
     );
   }
