@@ -26,7 +26,8 @@ dependencies:
   # blockchain-related
   crypton: ^2.0.5 # elliptic curve keypair + create/verify signature func
   crypto: ^3.0.2 # sha-256
-
+  hex: ^0.2.0 # hex to byte array and vice versa
+  
   # backend(firebase)
   firebase_core: ^1.18.0
   cloud_firestore: ^3.1.18

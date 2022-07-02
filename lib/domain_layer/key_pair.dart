@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:crypton/crypton.dart';
+import 'package:hex/hex.dart';
 
 /// Custom implementation of [KeyPair] class. Usage description can be found in README.
 /// See https://pub.dev/packages/crypton for implemetation of [ECKeypair].
@@ -26,6 +29,17 @@ class KeyPair {
     return KeyPair(
       privateKey: ecKeypair.privateKey,
       publicKey: ecKeypair.publicKey,
+    );
+  }
+
+  /// returns KeyPair corresponding to the given privateKey
+  static KeyPair getKeyPairFromPrivateKey(String privateKeyBase64) {
+    String privateKeyHex = HEX.encode(base64.decode(privateKeyBase64));
+    ECPrivateKey privateKey = ECPrivateKey.fromString(privateKeyHex);
+    ECPublicKey publicKey = privateKey.publicKey;
+    return KeyPair(
+      privateKey: privateKey,
+      publicKey: publicKey,
     );
   }
 

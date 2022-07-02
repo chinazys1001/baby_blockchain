@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:baby_blockchain/constants.dart';
+import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/presentation_layer/loading_indicator.dart';
 import 'package:baby_blockchain/presentation_layer/ui_layout.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:glass/glass.dart';
+import 'package:hex/hex.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -150,7 +154,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 Future.delayed(
                                   Duration.zero,
                                   () async {
-                                    //currentKeyPair = KeyPair.genKeyPair();
+                                    currentAccount = Account.genAccount();
+                                    print(currentAccount.keyPair.privateKey);
+                                    String s = (base64Encode(HEX.decode(
+                                        currentAccount.keyPair.privateKey
+                                            .toString())));
+                                    print(s);
+                                    print(HEX.encode(base64.decode(s)));
                                   },
                                 );
                                 Future.delayed(

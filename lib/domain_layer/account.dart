@@ -4,6 +4,9 @@ import 'package:baby_blockchain/domain_layer/key_pair.dart';
 import 'package:baby_blockchain/domain_layer/signature.dart';
 import 'package:flutter/foundation.dart';
 
+/// Account user signed-in to
+late Account currentAccount;
+
 /// Custom implementation of [Account] class. Usage description can be found in README.
 class Account {
   Account({required this.id, required this.keyPair, required this.robotIDs});
@@ -28,6 +31,19 @@ class Account {
     KeyPair keyPair = KeyPair.genKeyPair();
     String id = keyPair.publicKey.toString();
     Set<String> robotIDs = {};
+
+    return Account(
+      id: id,
+      keyPair: keyPair,
+      robotIDs: robotIDs,
+    );
+  }
+
+  /// returns an account corresponding to given privateKey
+  static Account signInToAccount(String privateKeyBase64) {
+    KeyPair keyPair = KeyPair.getKeyPairFromPrivateKey(privateKeyBase64);
+    String id = keyPair.publicKey.toString();
+    Set<String> robotIDs = {}; // TODO: get from the db
 
     return Account(
       id: id,
@@ -64,14 +80,14 @@ class Account {
   // TODO: createOperation().
 
   // equivalent of printBalance()
-  // Testing-only
+  /// Testing-only
   void printRobots() {
     if (kDebugMode) {
       print("Robots: ${robotIDs.toString()}");
     }
   }
 
-  // Testing-only
+  /// Testing-only
   void printAccount() {
     if (kDebugMode) {
       print("------------------------Account------------------------");
