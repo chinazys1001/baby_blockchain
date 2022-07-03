@@ -5,9 +5,9 @@ const Color LightColor = Colors.white;
 // ignore: constant_identifier_names
 const Color DarkColor = Colors.black;
 // ignore: constant_identifier_names
-const Color AccentColor = Colors.blue;
-// ignore: constant_identifier_names
-const Color BackgroundColor = Colors.white70;
+const Color AccentColor = Color(0xFF196cb0);
+// ignore: non_constant_identifier_names
+Color BackgroundColor = const Color(0xFFc8fefe).withOpacity(0.2);
 // ignore: constant_identifier_names
 const Color DisabledColor = Colors.black54;
 // ignore: constant_identifier_names
@@ -20,3 +20,7 @@ Color SplashColor = Colors.blue.shade100;
 const double smallFontSize = 16;
 const double mediumFontSize = 20;
 const double bigFontSize = 24;
+
+const BorderRadius smallBorderRadius = BorderRadius.all(Radius.circular(7.0));
+const BorderRadius mediumBorderRadius = BorderRadius.all(Radius.circular(20.0));
+const BorderRadius bigBorderRadius = BorderRadius.all(Radius.circular(40.0));

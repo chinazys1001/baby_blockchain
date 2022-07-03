@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 
+import 'package:baby_blockchain/data_layer/account_database.dart';
 import 'package:baby_blockchain/domain_layer/key_pair.dart';
 import 'package:baby_blockchain/domain_layer/signature.dart';
 import 'package:flutter/foundation.dart';
 
 /// Account user signed-in to
-late Account currentAccount;
+Account? currentAccount;
 
 /// Custom implementation of [Account] class. Usage description can be found in README.
 class Account {
@@ -22,7 +23,7 @@ class Account {
   final Set<String> robotIDs;
 
   /// Generating account: assigning its key pair, id(public key) and ownership list(empty)
-  static Account genAccount() {
+  static Future<Account> genAccount() async {
     // since each account has one and only immutable key pair,
     // this key pair gets associated with its account in initial account creation
     // hence smth like addKeyPairToWallet() func from the ref is not needed
@@ -32,6 +33,9 @@ class Account {
     String id = keyPair.publicKey.toString();
     Set<String> robotIDs = {};
 
+    // adding the account to AccountDatabase.
+    await AccountDatabase.addAccount(id, robotIDs);
+
     return Account(
       id: id,
       keyPair: keyPair,
@@ -39,11 +43,23 @@ class Account {
     );
   }
 
-  /// returns an account corresponding to given privateKey
-  static Account signInToAccount(String privateKeyBase64) {
-    KeyPair keyPair = KeyPair.getKeyPairFromPrivateKey(privateKeyBase64);
+  /// Returns an account corresponding to given privateKey.
+  /// If account with given ID is absent in [AccountDatabase], returns null.
+  static Future<Account?> signInToAccount(String privateKeyBase64) async {
+    // getting corresponding instance of KeyPair
+    KeyPair? keyPair = KeyPair.getKeyPairFromPrivateKey(privateKeyBase64);
+    // returning null if the fromat of provided private key is invalid
+    if (keyPair == null) return null;
+    // id <=> publicKey
     String id = keyPair.publicKey.toString();
-    Set<String> robotIDs = {}; // TODO: get from the db
+
+    // checking if the account exists
+    bool accountIsValid = await AccountDatabase.accountExists(id);
+    print(accountIsValid);
+    if (!accountIsValid) return null; // returning null if not
+
+    // getting robotIDs from accountDatabase
+    Set<String> robotIDs = await AccountDatabase.getRobotIDs(id);
 
     return Account(
       id: id,

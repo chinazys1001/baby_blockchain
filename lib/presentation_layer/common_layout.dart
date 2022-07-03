@@ -1,4 +1,4 @@
-import 'package:baby_blockchain/constants.dart';
+import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:baby_blockchain/presentation_layer/screens/account_screen.dart';
 import 'package:baby_blockchain/presentation_layer/screens/my_robots_screen.dart';
 import 'package:baby_blockchain/presentation_layer/screens/transfer_rights_screen.dart';
@@ -7,14 +7,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
 
-class UILayout extends StatefulWidget {
-  const UILayout({Key? key}) : super(key: key);
+class CommonLayout extends StatefulWidget {
+  const CommonLayout({Key? key}) : super(key: key);
 
   @override
-  State<UILayout> createState() => _UILayoutState();
+  State<CommonLayout> createState() => _CommonLayoutState();
 }
 
-class _UILayoutState extends State<UILayout> {
+class _CommonLayoutState extends State<CommonLayout> {
   int _selectedScreen = 1;
   static const List<Widget> _screens = <Widget>[
     AccountScreen(),
@@ -41,6 +41,21 @@ class _UILayoutState extends State<UILayout> {
         ),
         body: Center(
           child: _screens.elementAt(_selectedScreen),
+        ),
+        floatingActionButton: Visibility(
+          visible: _selectedScreen == 1,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: FloatingActionButton(
+              tooltip: "Get a robot for testing",
+              backgroundColor: AccentColor,
+              foregroundColor: LightColor,
+              onPressed: () {
+                // TODO
+              },
+              child: const Icon(LineIcons.plus),
+            ),
+          ),
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
@@ -89,6 +104,7 @@ class _UILayoutState extends State<UILayout> {
       length: 3,
       initialIndex: _selectedScreen,
       child: Scaffold(
+        backgroundColor: BackgroundColor,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: AccentColor,
@@ -128,6 +144,21 @@ class _UILayoutState extends State<UILayout> {
         ),
         body: const TabBarView(
           children: _screens,
+        ),
+        floatingActionButton: Visibility(
+          visible: _selectedScreen == 1,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: FloatingActionButton(
+              tooltip: "Get a robot for testing",
+              backgroundColor: AccentColor,
+              foregroundColor: LightColor,
+              onPressed: () {
+                // TODO
+              },
+              child: const Icon(LineIcons.plus),
+            ),
+          ),
         ),
       ),
     );

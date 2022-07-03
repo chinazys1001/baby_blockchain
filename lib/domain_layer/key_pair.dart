@@ -32,15 +32,20 @@ class KeyPair {
     );
   }
 
-  /// returns KeyPair corresponding to the given privateKey
-  static KeyPair getKeyPairFromPrivateKey(String privateKeyBase64) {
-    String privateKeyHex = HEX.encode(base64.decode(privateKeyBase64));
-    ECPrivateKey privateKey = ECPrivateKey.fromString(privateKeyHex);
-    ECPublicKey publicKey = privateKey.publicKey;
-    return KeyPair(
-      privateKey: privateKey,
-      publicKey: publicKey,
-    );
+  /// Returns KeyPair corresponding to the given privateKey.
+  /// If privateKey format is invalid, returns null.
+  static KeyPair? getKeyPairFromPrivateKey(String privateKeyBase64) {
+    try {
+      String privateKeyHex = HEX.encode(base64.decode(privateKeyBase64));
+      ECPrivateKey privateKey = ECPrivateKey.fromString(privateKeyHex);
+      ECPublicKey publicKey = privateKey.publicKey;
+      return KeyPair(
+        privateKey: privateKey,
+        publicKey: publicKey,
+      );
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Testing only
