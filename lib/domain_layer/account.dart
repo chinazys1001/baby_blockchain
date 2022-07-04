@@ -55,7 +55,6 @@ class Account {
 
     // checking if the account exists
     bool accountIsValid = await AccountDatabase.accountExists(id);
-    print(accountIsValid);
     if (!accountIsValid) return null; // returning null if not
 
     // getting robotIDs from accountDatabase

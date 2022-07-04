@@ -1,8 +1,7 @@
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:line_icons/line_icon.dart';
+import 'package:glass/glass.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:motion_toast/motion_toast.dart';
 
@@ -45,9 +44,9 @@ class KeyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      elevation: 8,
+      elevation: 4,
       color: LightColor,
-      shadowColor: ShadowColor,
+      shadowColor: Colors.blueGrey,
       borderRadius: bigBorderRadius,
       child: InkWell(
         splashColor: AccentColor.withOpacity(0.5),
@@ -55,15 +54,19 @@ class KeyCard extends StatelessWidget {
         borderRadius: bigBorderRadius,
         onTap: copyKey,
         onLongPress: copyKey,
-        child: Padding(
-          padding: const EdgeInsets.all(30),
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width < 400
+              ? 320
+              : MediaQuery.of(context).size.width < 600
+                  ? 380
+                  : 440,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 15),
               Icon(
                 isPrivateKey ? LineIcons.key : LineIcons.users,
-                size: 70,
+                size: 80,
                 color: AccentColor,
               ),
               const SizedBox(height: 15),
@@ -74,14 +77,20 @@ class KeyCard extends StatelessWidget {
               const SizedBox(height: 15),
               Text(
                 value,
+                maxLines: 1,
                 style: TextStyle(
-                  fontSize: smallFontSize,
+                  fontSize: MediaQuery.of(context).size.width < 400
+                      ? 12
+                      : MediaQuery.of(context).size.width < 600
+                          ? 14
+                          : 16,
                   color: DarkColor.withOpacity(0.54),
                 ),
               ),
+              const SizedBox(height: 30),
             ],
           ),
-        ),
+        ).asGlass(blurX: 15, blurY: 15, frosted: true),
       ),
     );
   }

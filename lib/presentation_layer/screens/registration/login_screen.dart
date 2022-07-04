@@ -130,7 +130,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       helperMaxLines: 3,
                       hintText: "Private key goes here...",
                       hintStyle: TextStyle(
-                        color: BackgroundColor,
+                        color: LightColor.withOpacity(0.67),
                         fontSize: smallFontSize,
                       ),
                       enabledBorder: OutlineInputBorder(

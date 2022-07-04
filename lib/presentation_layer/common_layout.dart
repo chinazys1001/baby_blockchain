@@ -27,35 +27,8 @@ class _CommonLayoutState extends State<CommonLayout> {
     if (MediaQuery.of(context).size.width < 600) {
       return Scaffold(
         backgroundColor: BackgroundColor,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: AccentColor,
-          centerTitle: true,
-          title: Text(
-            'BabyBlockchain',
-            style: GoogleFonts.fredokaOne(
-              color: LightColor,
-              fontSize: bigFontSize,
-            ),
-          ),
-        ),
         body: Center(
           child: _screens.elementAt(_selectedScreen),
-        ),
-        floatingActionButton: Visibility(
-          visible: _selectedScreen == 1,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: FloatingActionButton(
-              tooltip: "Get a robot for testing",
-              backgroundColor: AccentColor,
-              foregroundColor: LightColor,
-              onPressed: () {
-                // TODO
-              },
-              child: const Icon(LineIcons.plus),
-            ),
-          ),
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
@@ -144,21 +117,6 @@ class _CommonLayoutState extends State<CommonLayout> {
         ),
         body: const TabBarView(
           children: _screens,
-        ),
-        floatingActionButton: Visibility(
-          visible: _selectedScreen == 1,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: FloatingActionButton(
-              tooltip: "Get a robot for testing",
-              backgroundColor: AccentColor,
-              foregroundColor: LightColor,
-              onPressed: () {
-                // TODO
-              },
-              child: const Icon(LineIcons.plus),
-            ),
-          ),
         ),
       ),
     );

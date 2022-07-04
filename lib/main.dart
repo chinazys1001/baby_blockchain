@@ -1,6 +1,6 @@
 import 'package:baby_blockchain/data_layer/firebase_options.dart';
 import 'package:baby_blockchain/domain_layer/account.dart';
-import 'package:baby_blockchain/presentation_layer/screens/my_robots_screen.dart';
+import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/login_screen.dart';
 import 'package:baby_blockchain/presentation_layer/common_layout.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,7 +13,7 @@ Future<void> main() async {
   );
 
   currentAccount = await Account.signInToAccount(
-      "gG1ErFN7QphaarnZBBGXm/1nEd5KIm5aJTDiXRaLBtw=");
+      "ojrBn7LIGuUfSOcli23jHzwqxqOUYvTAzQWC4LFRQgo=");
   runApp(const MyApp());
 }
 
@@ -22,10 +22,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'BabyBlockchain',
       debugShowCheckedModeBanner: false,
-      home: CommonLayout(),
+      theme: ThemeData(primaryColor: AccentColor),
+      home: const CommonLayout(),
     );
   }
 }

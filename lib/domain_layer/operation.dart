@@ -44,11 +44,10 @@ class Operation {
       },
       "robotID": robotID,
     };
-    String hashedOperationData = Hash.toSHA256(operationData.toString());
 
     // seller signs hashed operation data
     Uint8List signature =
-        Signature.signData(hashedOperationData, seller.keyPair);
+        Signature.signData(operationData.toString(), seller.keyPair);
 
     return Operation(
       seller: seller,
@@ -72,10 +71,9 @@ class Operation {
       },
       "robotID": operation.robotID,
     };
-    String hashedOperationData = Hash.toSHA256(operationData.toString());
 
-    if (!Signature.verifySignature(
-        operation.signature, hashedOperationData, operation.seller.keyPair)) {
+    if (!Signature.verifySignature(operation.signature,
+        operationData.toString(), operation.seller.keyPair)) {
       return false;
     }
     // TODO: check accountDatabase
