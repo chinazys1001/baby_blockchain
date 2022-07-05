@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:baby_blockchain/data_layer/robot_database.dart';
 import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/domain_layer/hash.dart';
-import 'package:baby_blockchain/domain_layer/varificational_token.dart';
+import 'package:baby_blockchain/domain_layer/verificational_token.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:flutter/foundation.dart';
 
@@ -39,7 +39,6 @@ class Robot {
     // on each transaction received/sent from the account,
     // robotID = (ownerID + nonce) seems to be unique => its hash is unique as well
     int nonce = await RobotDatabase.getNonce(ownerID);
-    await RobotDatabase.incrementNonce(ownerID); // incrementing nonce
     String robotID = Hash.toSHA256(ownerID + nonce.toString());
 
     // Step 2. Generating a unique name among owner's robots:
@@ -54,7 +53,7 @@ class Robot {
     // e.g. if there are robots named Taras and Taras-2 among the robots owned
     // by the corresponding account and randomName = "Taras", then to avoid
     // repeats a suffix "-3" should be added
-    if (namesakesCnt > 0) robotName += (namesakesCnt + 1).toString();
+    if (namesakesCnt > 0) robotName += "-${(namesakesCnt + 1).toString()}";
 
     return Robot(
       robotID: robotID,
@@ -65,8 +64,7 @@ class Robot {
   }
 
   /// Just a code snippet for a method used to connect to the robot.
-  /// Expected to return true if the robot approved the request.
-  Future<bool> requestConnection() async {
+  Future<void> requestConnection() async {
     Account? owner = verifiedAccount; // account user singned in to
     if (owner == null) {
       throw Exception("Access to owner account denied");
@@ -76,7 +74,6 @@ class Robot {
 
     if (isTestMode) {
       debugPrint("Generated token: ${verificationalToken.toString()}");
-      return true;
     }
 
     // now the generated token can be send to the robot, for instance, via Bluetooth:
@@ -92,10 +89,9 @@ class Robot {
       }
     });
     */
-
-    return false; // unfortunately, the robot is not ready yet :)
   }
 
+  /// Convert [Robot] to the [Map] of its attributes.
   Map<String, dynamic> toMap() {
     Map<String, dynamic> mapRobot = {
       "robotID": robotID,
@@ -104,6 +100,24 @@ class Robot {
       "isTestMode": isTestMode,
     };
     return mapRobot;
+  }
+
+  /// Get [Set] of [Robot]s from the [List] of [Map]s with their attributes.
+  static Set<Robot> fromList(List<dynamic> robotsList) {
+    Set<Robot> robotsSet = {};
+
+    for (var robotData in robotsList) {
+      robotsSet.add(
+        Robot(
+          robotID: robotData["robotID"],
+          ownerID: robotData["ownerID"],
+          robotName: robotData["robotName"],
+          isTestMode: robotData["isTestMode"],
+        ),
+      );
+    }
+
+    return robotsSet;
   }
 
   /// Testing-only

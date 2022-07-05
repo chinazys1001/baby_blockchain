@@ -43,7 +43,7 @@ class RobotDatabase {
     }
   }
 
-  /// Returns [Set] of [Robot]s (`robots` field), from the document with given `accountID`.
+  /// Returns [Set] of [Robot]s (`robots` field) from the document with given `accountID`.
   static Future<Set<Robot>> getRobots(String accountID) async {
     try {
       Set<Robot> robots = {};
@@ -53,7 +53,7 @@ class RobotDatabase {
           .get()
           .then((doc) {
         List<dynamic> robotsList = doc.get("robots");
-        robots = Set<Robot>.from(robotsList);
+        robots = Set<Robot>.from(Robot.fromList(robotsList));
       });
       return Set<Robot>.from(robots);
     } catch (e) {

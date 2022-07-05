@@ -87,6 +87,8 @@ class Account {
     try {
       // adding a robot in robotDatabase
       await RobotDatabase.addRobot(robot);
+      // updating current state
+      robots.add(robot);
     } catch (e) {
       rethrow;
     }
@@ -101,6 +103,8 @@ class Account {
     try {
       // removing a robot from robotDatabase
       await RobotDatabase.removeRobot(robot);
+      // updating current state
+      robots.remove(robot);
     } catch (e) {
       rethrow;
     }

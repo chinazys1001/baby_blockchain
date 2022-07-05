@@ -83,7 +83,7 @@ class Operation {
         operationData.toString(), operation.seller.keyPair)) {
       return false;
     }
-    // TODO: check robotDatabase
+    // TODO: check in robotDatabase if seller owns robot with given ID
     return true;
   }
 

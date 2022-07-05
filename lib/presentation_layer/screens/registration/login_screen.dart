@@ -21,6 +21,21 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   bool isLoading = false;
 
+  @override
+  void initState() {
+    if (verifiedAccount != null) {
+      Future.delayed(Duration.zero, () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => const CommonLayout(),
+          ),
+        );
+      });
+    }
+    super.initState();
+  }
+
   Widget getBanner() => Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

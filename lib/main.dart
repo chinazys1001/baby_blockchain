@@ -12,7 +12,7 @@ Future<void> main() async {
   );
 
   await Account.tryToSignInToAccount(
-      "ojrBn7LIGuUfSOcli23jHzwqxqOUYvTAzQWC4LFRQgo=");
+      "Rjr5CrqiO8WQGq9s1FYtb/XWpZ3AncW+N+JSUgkytZ8=");
 
   runApp(const MyApp());
 }

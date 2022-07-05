@@ -1,6 +1,5 @@
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:glass/glass.dart';
 import 'package:line_icons/line_icons.dart';
 
 class RobotCard extends StatelessWidget {
@@ -34,26 +33,22 @@ class RobotCard extends StatelessWidget {
             const SizedBox(height: 15),
             const Icon(
               LineIcons.robot,
-              size: 80,
+              size: 180,
               color: AccentColor,
             ),
             const SizedBox(height: 15),
             Text(
               name,
               maxLines: 1,
-              style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width < 400
-                    ? 12
-                    : MediaQuery.of(context).size.width < 600
-                        ? 14
-                        : 16,
-                color: DarkColor.withOpacity(0.54),
+              style: const TextStyle(
+                fontSize: bigFontSize * 2,
+                color: DarkColor,
               ),
             ),
             const SizedBox(height: 30),
           ],
         ),
-      ).asGlass(blurX: 15, blurY: 15, frosted: true),
+      ),
     );
   }
 }
