@@ -19,7 +19,7 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   @override
   void initState() {
-    if (currentAccount == null) {
+    if (verifiedAccount == null) {
       Future.delayed(Duration.zero, () {
         Navigator.push(
           context,
@@ -60,7 +60,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           pageBuilder: (_, a1, a2) => const SignInScreen(),
                         ),
                       );
-                      currentAccount = null;
+                      verifiedAccount = null;
                     },
                     icon: const Icon(LineIcons.alternateSignOut, size: 30),
                   ),
@@ -87,7 +87,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           value: base64Encode(
                             HEX.decode(
                               // ignore: invalid_use_of_protected_member
-                              currentAccount!.keyPair.privateKey.toString(),
+                              verifiedAccount!.keyPair.privateKey.toString(),
                             ),
                           ),
                           isPrivateKey: true,
@@ -108,7 +108,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         ),
                         child: KeyCard(
                           // ignore: invalid_use_of_protected_member
-                          value: currentAccount!.keyPair.publicKey.toString(),
+                          value: verifiedAccount!.keyPair.publicKey.toString(),
                           isPrivateKey: false,
                           context: context,
                         ),
@@ -126,7 +126,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     value: base64Encode(
                       HEX.decode(
                         // ignore: invalid_use_of_protected_member
-                        currentAccount!.keyPair.privateKey.toString(),
+                        verifiedAccount!.keyPair.privateKey.toString(),
                       ),
                     ),
                     isPrivateKey: true,
@@ -134,7 +134,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                   KeyCard(
                     // ignore: invalid_use_of_protected_member
-                    value: currentAccount!.keyPair.publicKey.toString(),
+                    value: verifiedAccount!.keyPair.publicKey.toString(),
                     isPrivateKey: false,
                     context: context,
                   ),
@@ -156,7 +156,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       pageBuilder: (_, a1, a2) => const SignInScreen(),
                     ),
                   );
-                  currentAccount = null;
+                  verifiedAccount = null;
                 },
                 child: const Icon(LineIcons.alternateSignOut),
               ),

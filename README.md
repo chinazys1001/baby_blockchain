@@ -4,7 +4,8 @@
 Демонстраційний веб-застосунок реалізовано у фрейморці Flutter, для емуляції backend-ресурсів використовується Firebase Firestore. Для підвищення зручності перевірки завдання стисло опишемо архітектуру проекту:
 - Майже весь "смисловий" код знаходиться у фолдері [/lib](https://github.com/chinazys1001/baby_blockchain/tree/master/lib). Інші файли - це, здебільшого, platform-specific код або конфігуратори використовуваних Flutter/Firebase ресурсів. Єдине, що може бути серед них корисним - файл [pubspec.yaml](https://github.com/chinazys1001/baby_blockchain/blob/master/pubspec.yaml). Там можна знайти повний список використовуваних сторонніх бібліотек, він знакодиться у розділі "dependencies". З документацією цих бібліотек можна ознайомитися на сайті [pub.dev](https://pub.dev).
 - У фолдері [/lib](https://github.com/chinazys1001/baby_blockchain/tree/master/lib) знаходяться файли [main.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/main.dart) (стандартно, це entry point виконання програмного коду, не має "ідейної" складової), [constants.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/constants.dart) (перелік використовуваних константних значень) та фолдери стандартних архітектурних леєрів ([/data_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/data_layer), [/domain_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer), [/presentation_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/presentation_layer)). В [data_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/data_layer) знаходиться програмний код для взаємодії з бекенд-ресурсами, у нашому випадку специфічний для Firebase, в [presentation_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/presentation_layer)) міститься код для конфігурації UI, специфічний для використовуваного фреймворку Flutter. Обидва розглянуті леєри, вочовидь, не несуть дослідницької цінності.
-- А ось [domain_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer) - це те, що є найбільш важливим в контексті розглянутої задачі. В ньому описана вся бізнес-логіка застосунку, у нашому випадку - впровадження блокчейну та усіх пов'язаних класів/методів/об'єктів. Весь код написано на dart (ця мова програмування належить до C-family). Детальні відомості по реалізації кожного класу наведені нижче.
+- А ось [domain_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer) - це те, що є найбільш важливим в контексті розглянутої задачі. В ньому описана вся бізнес-логіка застосунку, у нашому випадку - впровадження блокчейну та усіх пов'язаних класів/методів/об'єктів. Весь код написано на dart (ця мова програмування належить до C-family). Детальні відомості щодо реалізації кожного класу наведені нижче.
+
 ## Клас KeyPair
 #### [key_pair.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/key_pair.dart)
 Для створення ключової пари використовується Elliptic Curve Cryptography. Опис використовуваної реалізації алгоритму генерації ключової пари наведено в [документації](https://pub.dev/packages/crypton).
@@ -17,6 +18,7 @@
 - genKeyPair() - виконує випадкову генерацію ключової пари. Використовується при створенні нового акаунту.
 - getKeyPairFromPrivateKey(privateKey) - функція отримання ключової пари по даному приватному ключу. Використовується при вході до акаунту.
 - printKeyPair() - для тестування.
+
 ## Клас Signature
 #### [signature.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/signature.dart)
 Для створення цифрового підпису та його перевірки використовується Elliptic Curve Cryptography. Опис використовуваної реалізації алгоритму генерації цифрового підпису та його верифікації наведено в [документації](https://pub.dev/packages/crypton).
@@ -24,7 +26,9 @@
 Методи:
 - signData(operation, privateKey) - генерує цифровий підпис для операцій. Використовується як верифікаційний токен, який надсилається при підключенні до робота та при створенні операції передачі прав власності на робота між акаунтами.
 - verifySignature(signature, operation, publicKey) - перевіряє цифровий підпис операції. Використовується для валідації операцій у блокчейні. Аналог цього методу використовується програмним забезпеченням роботу при перевірці верифікаційного токена.
+
 ## Клас Account
+#### [account.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/account.dart)
 Об'єкти:
 - id - унікальний ідентифікатор, адреса акаунту у системі. Його значення співпадає з public key акаунту.
 - keyPair - ключова пара акаунту. Відповідно до [ТЗ](https://github.com/chinazys1001/distributed_lab_workshop/tree/main/BabyBlockchain#%D0%B0%D0%BA%D0%B0%D1%83%D0%BD%D1%82), кожен акаунт має рівно одну ключову пару. Викристання акаунтом ключової пари [описано вище](https://github.com/chinazys1001/baby_blockchain#%D0%BA%D0%BB%D0%B0%D1%81-keypair).
@@ -39,17 +43,51 @@
 - signData(data) - функція створення цифрового підпису даних акаунтом. Використовується при підключенні до робота та при продажі (операцію передачі прав власності підписує акаунт-продавець).
 - printRobots() - для тестування.
 - printAccount() - для тестування.
+
+Оператори:
+- operator ==(other) - оператор порівняння двох акаунтів. Два акаунта вважаються однаковими, якщо їх ID співпадають.
+
 ## Клас Operation
-//TODO
+#### [operation.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/operation.dart)
+Об'єкти:
+- 
+
 ## Клас Transaction
-//TODO
+#### [account.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/transaction.dart)
+Оператори:
+- operator ==(other) - оператор порівняння двох транзакцій. Дві транзакції вважаються однаковими, якщо їх ID співпадають.
+
 ## Клас Hash
 #### [hash.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/hash.dart)
 Для гешування даних використовується алгоритм SHA-2 (256-bit версія). Опис використовуваної реалізації алгоритму SHA-256 наведено в [документації](https://pub.dev/packages/crypto).
 Методи:
 - toSHA256(input) - виконує гешування вхідних даних.
 - matches(value, hash) - перевіряє, чи є значення hash результатом гешування значення value.
+
 ## Клас Block
 //TODO
+
 ## Клас Blockchain
 //TODO(+accountDatabase)
+
+## Клас Robot
+#### [robot.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/robot.dart)
+Об'єкти:
+- robotID - унікальний ідентифікатор роботу.
+- ownerID - ID акаунту-власника даного роботу. 
+- robotName - характеристика роботу. В повноцінній реалізації, вочовидь, кожен робот матиме багато параметрів, які можна буде налаштовувати в застосунку. В якості мінімального прикладу кожен робот матиме єдину характеристику - своє умовне ім'я. Воно завжди є різним серед роботів, які мають однакового власника, але не є унікальним загально (тобто роботи двох різних акаунтів можуть мати однакові імена).
+- isTestMode - дорівнює True, якщо даного роботу було створено у тестувальному режимі.
+
+Методи:
+- generateRandomRobot(ownerID, {isTestMode = true}) - функція генерації випадкового роботу та присвоєння його акаунту з даним ID (як правило, використовується при тестуванні). Для створення роботу генерується випадковий ID: для цього використовується хеш від пари ownerID - nonce відповідного акаунту (при додаванні роботу до акаунту nonce завжди змінюється, тому поєднання ID акаунту та nonce акаунту можна вважати унікальним), та генерується випадкове ім'я: для цього обирається випадкове ім'я зі списку randomRobotNames та при необхідності додається суфікс (якщо так трапилось, що випадкове ім'я - Taras, та даний акаунт вже володіє роботом на ім'я Taras, то до цього ім'я додається унікальний суфікс - отримуємо Taras-2, і так далі за аналогією). 
+- requestConnection() - псевдо-функція підключення до роботу. На її прикладі показано реальний процес генерації токену, псевдо-код надсилання цього токену роботу та обробки відповідей робота. Поки що ці роботи існують тільки в уявленні, тому цей метод є суто демонстраційним.
+- toMap() - використовується для зручного парсингу інформації про робота в robotDatabase.
+- printRobot() - для тестування.
+
+Оператори:
+- operator ==(other) - оператор порівняння двох роботів. Два робота вважаються однаковими, якщо їх ID співпадають.
+
+## VerificationalToken
+#### [verificational_token.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/verificational_token.dart)
+Методи:
+- generate(account, robotID) - функція генерації верифікаційного токена. На вхід отримує об'єкт класу Account, з якого треба створити запит на підключення, та ID робота, якому треба надіслати верифікаційний токен для підключення. Токен - це значення цифрового підпису даного robotID (умовно кажучи, ID роботу - це меседж) даним акаунтом (див. метод signData класу Account). Робот вже "знає" свій ID та public key свого власника, тому може здіснити перевірку надісланої сігнатури (див. метод verifySignature класу Signature). Таким чином, перевірка роботом цього токена покаже, чи знає надсилач цього токену privateKey акаунту-власника цього роботу <=> чи поступив цей запрос на підключення від реального власника цього роботу.

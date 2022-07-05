@@ -14,7 +14,7 @@ class TransferRightsScreen extends StatefulWidget {
 class _TransferRightsScreenState extends State<TransferRightsScreen> {
   @override
   void initState() {
-    if (currentAccount == null) {
+    if (verifiedAccount == null) {
       Future.delayed(Duration.zero, () {
         Navigator.push(
           context,

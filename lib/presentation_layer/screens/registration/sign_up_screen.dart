@@ -56,7 +56,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     onTap: () async {
                       List<int> privateKeyBytes = HEX.decode(
                         // ignore: invalid_use_of_protected_member
-                        currentAccount!.keyPair.privateKey.toString(),
+                        verifiedAccount!.keyPair.privateKey.toString(),
                       );
                       await Clipboard.setData(
                         ClipboardData(
@@ -86,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onPressed: () async {
                         List<int> privateKeyBytes = HEX.decode(
                           // ignore: invalid_use_of_protected_member
-                          currentAccount!.keyPair.privateKey.toString(),
+                          verifiedAccount!.keyPair.privateKey.toString(),
                         );
                         await Clipboard.setData(
                           ClipboardData(
@@ -120,7 +120,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       base64Encode(
                         HEX.decode(
                           // ignore: invalid_use_of_protected_member
-                          currentAccount!.keyPair.privateKey.toString(),
+                          verifiedAccount!.keyPair.privateKey.toString(),
                         ),
                       ),
                       style: const TextStyle(
@@ -189,8 +189,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       () async {
         await Account.genAccount().then(
           (generatedAccount) {
-            currentAccount = generatedAccount;
-            if (currentAccount != null) {
+            verifiedAccount = generatedAccount;
+            if (verifiedAccount != null) {
               Future.delayed(
                 const Duration(seconds: 2),
                 () {

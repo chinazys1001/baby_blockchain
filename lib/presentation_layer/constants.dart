@@ -25,18 +25,18 @@ const BorderRadius smallBorderRadius = BorderRadius.all(Radius.circular(7.0));
 const BorderRadius mediumBorderRadius = BorderRadius.all(Radius.circular(20.0));
 const BorderRadius bigBorderRadius = BorderRadius.all(Radius.circular(40.0));
 
-List<String> testRobotNames = const [
+List<String> randomRobotNames = const [
   "Demian",
   "Yosyp",
   "Casimir",
   "Liubomyr",
   "Markiian",
   "Marian",
-  "Nariman",
   "Omelian",
   "Orest",
   "Ostap",
   "Pylyp",
+  "Sava",
   "Stepan",
   "Taras",
   "Fedir",

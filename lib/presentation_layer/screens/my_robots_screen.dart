@@ -3,7 +3,9 @@ import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/login_screen.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/loading_indicator.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/loading_overlay.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/robot_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
@@ -16,9 +18,11 @@ class MyRobotsScreen extends StatefulWidget {
 }
 
 class _MyRobotsScreenState extends State<MyRobotsScreen> {
+  List<Robot> robotsList = [];
+
   @override
   void initState() {
-    if (currentAccount == null) {
+    if (verifiedAccount == null) {
       Future.delayed(Duration.zero, () {
         Navigator.push(
           context,
@@ -27,6 +31,8 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
           ),
         );
       });
+    } else {
+      robotsList = List.from(verifiedAccount!.robots);
     }
     super.initState();
   }
@@ -49,11 +55,18 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
               ),
             )
           : null,
-      body: const Center(
-        child: Text(
-          "my robots screen",
-          style: TextStyle(fontSize: mediumFontSize),
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
         ),
+        itemCount: robotsList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return RobotCard(
+            name: robotsList[index].robotName,
+            isTestMode: robotsList[index].isTestMode,
+            context: context,
+          );
+        },
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(10),
@@ -63,7 +76,11 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
           foregroundColor: LightColor,
           onPressed: () async {
             checkAndShowLoading(context, "Creating a random TestBot...");
-            await RobotDatabase.addRobot(currentAccount!.id, null, true).then(
+            Robot randomRobot = await Robot.generateRandomRobot(
+              ownerID: verifiedAccount!.accountID,
+              isTestMode: true,
+            );
+            await RobotDatabase.addRobot(randomRobot).then(
               (value) => Future.delayed(
                 const Duration(seconds: 1),
                 () => Navigator.pop(context),

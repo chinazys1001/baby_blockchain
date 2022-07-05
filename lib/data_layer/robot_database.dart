@@ -1,96 +1,133 @@
-import 'dart:math';
-
-import 'package:baby_blockchain/data_layer/account_database.dart';
-import 'package:baby_blockchain/domain_layer/hash.dart';
+import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
-import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// ID of each DB document -> ID of corresponding robot.
-/// Each document has three fields:
-/// `owner` -> ID of master-account;
-/// `name` -> name of a robot with corresponding ID;
-/// `isTestMode` -> true if the robot was generated as an instance for testing.
+/// ID of each DB document -> ID of corresponding account.
+/// Each document has two fields:
+/// `robots` -> [Set] of [Robot]s, owned by this account
+/// (each [Robot] is defined as a map of its attributes)
+/// `nonce` -> total number of times `robotIDs` length of account changed;
+/// (which means that `nonce` gets incremented on every single "purchase"/"sale").
 class RobotDatabase {
-  /// Generates and adds a document with id = sha256(ownerId + ownerNonce)  to [RobotDatabase]
-  /// and updates `robotIDs` field of an account with given `ownerID` in [AccountDatabase]
-  /// Account with given `ownerID` becomes the owner of the robot.
-  static Future<void> addRobot(String ownerID,
-      [String? robotName, bool isTestMode = false]) async {
+  /// Adds a document with given `accountID` to [RobotDatabase].
+  /// Initially, `robotIDs` list is blank. Nonce equals to zero.
+  static Future<void> addAccount(String accountID) async {
     try {
-      // since ownerID is unique and nonce of the account with ownerID increments
-      // on each transactio received/sent from the account,
-      // robotID = (ownerID + nonce) seems to be unique => its hash is unique as well
-      int nonce = await AccountDatabase.getNonce(ownerID);
-      await AccountDatabase.incrementNonce(ownerID); // incrementing nonce
-      String robotID = Hash.toSHA256(ownerID + nonce.toString());
-
-      // generating a random name for the robot
-      if (robotName == null) {
-        int randInd = Random.secure().nextInt(16);
-        robotName = testRobotNames[randInd];
-        // checking for namesakes
-        await FirebaseFirestore.instance
-            .collection("robotDatabase")
-            .where("owner", isEqualTo: ownerID)
-            .where("name", isGreaterThanOrEqualTo: robotName)
-            .where("name", isLessThanOrEqualTo: '$robotName\uf8ff')
-            .get()
-            .then((docs) {
-          if (docs.size > 0) {
-            robotName = '${robotName!}(${docs.size + 1})';
-          }
-        });
-      }
-
-      // adding robot to robotDatabase
       await FirebaseFirestore.instance
           .collection("robotDatabase")
-          .doc(
-              robotID) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .doc(accountID.replaceAll('/',
+              '-')) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
           .set({
-        "owner": ownerID,
-        "name": robotName,
-        "isTestMode": isTestMode,
-      });
-
-      await FirebaseFirestore.instance
-          .collection("accountDatabase")
-          .doc(
-            ownerID.replaceAll('/',
-                '-'), // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
-          )
-          .update({
-        "robotIDs": FieldValue.arrayUnion([robotID]),
+        "robotIDs": Set.of(<Robot>{}),
+        "nonce": 0,
       });
     } catch (e) {
       rethrow;
     }
   }
 
-  /// Returns instance of [Robot] with given `robotID`. If there is none, returns null.
-  static Future<Robot> getRobotByID(String robotID) async {
+  /// Checks if a document with given `accountID` is present in [RobotDatabase].
+  static Future<bool> accountExists(String accountID) async {
     try {
-      String name = "";
-      String owner = "";
-      bool isTestMode = false;
+      bool exists = false;
       await FirebaseFirestore.instance
           .collection("robotDatabase")
-          .doc(robotID)
+          .doc(accountID.replaceAll('/', '-'))
           .get()
           .then((doc) {
-        name = doc.get("name");
-        owner = doc.get("owner");
-        isTestMode = doc.get("isTestMode");
+        exists = doc.exists;
       });
-      return Robot(
-        id: robotID,
-        name: name,
-        owner: owner,
-        isTestMode: isTestMode,
-      );
+      return exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Returns [Set] of [Robot]s (`robotIDs` field), from the document with given `accountID`.
+  static Future<Set<Robot>> getRobots(String accountID) async {
+    try {
+      Set<Robot> robots = {};
+      await FirebaseFirestore.instance
+          .collection("robotDatabase")
+          .doc(accountID.replaceAll('/', '-'))
+          .get()
+          .then((doc) {
+        List<dynamic> robotsList = doc.get("robotIDs");
+        robots = Set<Robot>.from(robotsList);
+      });
+      return Set<Robot>.from(robots);
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// Returns `nonce` corresponding to [Account] with given `accountID`
+  static Future<int> getNonce(String accountID) async {
+    try {
+      int nonce = 0;
+      await FirebaseFirestore.instance
+          .collection("robotDatabase")
+          .doc(accountID.replaceAll('/', '-'))
+          .get()
+          .then((doc) {
+        nonce = doc.get("nonce");
+      });
+      return nonce;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Increments `nonce`. Do call it every time length of [Account] `robotIDs` gets changed
+  static Future<void> incrementNonce(String accountID) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("robotDatabase")
+          .doc(accountID.replaceAll('/', '-'))
+          .update({
+        "nonce": FieldValue.increment(1),
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Adds the given [Robot] to the [Account] corresponding to the given `robot.ownerID`.
+  static Future<void> addRobot(Robot robot) async {
+    try {
+      // adding robot to robotDatabase
+      await FirebaseFirestore.instance
+          .collection("robotDatabase")
+          .doc(robot
+              .ownerID) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .update({
+        "robots": FieldValue.arrayUnion([robot.toMap()]),
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Removes the given [Robot] from the [Account] corresponding to the given `robot.ownerID`.
+  static Future<void> removeRobot(Robot robot) async {
+    try {
+      // adding robot to robotDatabase
+      await FirebaseFirestore.instance
+          .collection("robotDatabase")
+          .doc(robot
+              .ownerID) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .update({
+        "robots": FieldValue.arrayRemove([robot.toMap()]),
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Returns number of [Robot]s with the given name owned by the [Account] with given ID.
+  static Future<int> getNumberOfNamesakes(String name, String accountID) async {
+    Set<Robot> robots = await getRobots(accountID);
+    int cnt = robots.where((robot) => robot.robotName == name).length;
+    return cnt;
   }
 }

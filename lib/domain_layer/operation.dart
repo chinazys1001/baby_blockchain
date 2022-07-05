@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:baby_blockchain/domain_layer/account.dart';
-import 'package:baby_blockchain/domain_layer/hash.dart';
 import 'package:baby_blockchain/domain_layer/signature.dart';
 import 'package:flutter/foundation.dart';
 
@@ -26,20 +25,26 @@ class Operation {
   // Seller signs the operation.
   Uint8List signature;
 
-  // TODO: check seller != buyer
   // TODO: check if operation is unique (see ref.)
 
   /// Creating operation with given seller account, buyer account and robotID.
   static Operation createOperation(
       Account seller, Account buyer, String robotID) {
+    if (seller == buyer) {
+      throw ArgumentError(
+        "Seller cannot be equal to buyer",
+        seller.toString(),
+      );
+    }
+
     // operation data to be signed
     Map<String, dynamic> operationData = {
       "seller": {
-        "id": seller.id,
+        "id": seller.accountID,
         "keyPair": seller.keyPair,
       },
       "buyer": {
-        "id": buyer.id,
+        "id": buyer.accountID,
         "keyPair": buyer.keyPair,
       },
       "robotID": robotID,
@@ -59,14 +64,16 @@ class Operation {
 
   /// Checking if both signature is correct and seller does own robot with given id
   static bool verifyOperation(Operation operation) {
+    if (operation.seller == operation.buyer) return false;
+
     // operation data that must have been signed
     Map<String, dynamic> operationData = {
       "seller": {
-        "id": operation.seller.id,
+        "id": operation.seller.accountID,
         "keyPair": operation.seller.keyPair,
       },
       "buyer": {
-        "id": operation.buyer.id,
+        "id": operation.buyer.accountID,
         "keyPair": operation.buyer.keyPair,
       },
       "robotID": operation.robotID,
@@ -76,7 +83,7 @@ class Operation {
         operationData.toString(), operation.seller.keyPair)) {
       return false;
     }
-    // TODO: check accountDatabase
+    // TODO: check robotDatabase
     return true;
   }
 

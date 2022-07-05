@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:baby_blockchain/domain_layer/transaction.dart'
     as tr; // Transaction class is defined both here
 import 'package:cloud_firestore/cloud_firestore.dart'; // and here. Adding prefix "as tr" to manage conflicts.
@@ -16,7 +14,7 @@ class TXDatabase {
       await FirebaseFirestore.instance
           .collection("txDatabase")
           .doc(transaction
-              .id) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+              .transactionID) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
           .set({
         "operation": transaction.operation,
         "nonce": transaction.nonce,

@@ -248,9 +248,9 @@ class _SignInScreenState extends State<SignInScreen> {
       ).show(context);
       return;
     }
-    await Account.signInToAccount(keyTextController.text).then(
-      (account) {
-        if (account == null) {
+    await Account.tryToSignInToAccount(keyTextController.text).then(
+      (confirmed) {
+        if (!confirmed) {
           MotionToast.error(
             title: const Padding(
               padding: EdgeInsets.only(bottom: 5),
@@ -266,7 +266,6 @@ class _SignInScreenState extends State<SignInScreen> {
           ).show(context);
           return;
         }
-        currentAccount = account;
         Navigator.push(
           context,
           PageRouteBuilder(

@@ -1,4 +1,4 @@
-import 'package:baby_blockchain/data_layer/account_database.dart';
+import 'package:baby_blockchain/data_layer/robot_database.dart';
 import 'package:baby_blockchain/data_layer/tx_database.dart';
 import 'package:baby_blockchain/domain_layer/hash.dart';
 import 'package:baby_blockchain/domain_layer/operation.dart';
@@ -7,13 +7,13 @@ import 'package:flutter/foundation.dart';
 /// Custom implementation of [Transaction] class. Usage description can be found in README.
 class Transaction {
   Transaction({
-    required this.id,
+    required this.transactionID,
     required this.operation,
     required this.nonce,
   });
 
   /// Hash value of all transaction fields.
-  final String id;
+  final String transactionID;
 
   /// In our case, each transation consists of a single operation. See README for explanation.
   final Operation operation;
@@ -26,20 +26,21 @@ class Transaction {
 
   /// Creating transaction, which contains the given operation.
   static Future<Transaction> createTransaction(Operation operation) async {
-    int nonce = await AccountDatabase.getNonce(operation.seller.id);
+    int nonce = await RobotDatabase.getNonce(operation.seller.accountID);
 
-    String id = Hash.toSHA256(operation.toString() + nonce.toString());
+    String transactionID =
+        Hash.toSHA256(operation.toString() + nonce.toString());
 
     TXDatabase.addTransaction(
       Transaction(
-        id: id,
+        transactionID: transactionID,
         operation: operation,
         nonce: nonce,
       ),
     );
 
     return Transaction(
-      id: id,
+      transactionID: transactionID,
       operation: operation,
       nonce: nonce,
     );
@@ -49,7 +50,7 @@ class Transaction {
   void printAccount() {
     if (kDebugMode) {
       print("----------------------Transaction----------------------");
-      print("Transaction ID: $id");
+      print("Transaction ID: $transactionID");
       print("Operation: ${operation.toString()}");
       print("Nonce: ${nonce.toString()}");
       print("-------------------------------------------------------");
@@ -59,7 +60,7 @@ class Transaction {
   @override
   String toString() {
     Map<String, dynamic> mapTransaction = {
-      "transactionID": id,
+      "transactionID": transactionID,
       "operation": operation.toString(),
       "nonce": nonce.toString(),
     };
