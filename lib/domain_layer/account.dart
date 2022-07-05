@@ -63,7 +63,7 @@ class Account {
     bool accountIsValid = await RobotDatabase.accountExists(accountID);
     if (!accountIsValid) return false; // returning null if not
 
-    // getting robots from accountDatabase
+    // getting robots from robotDatabase
     Set<Robot> robots = await RobotDatabase.getRobots(accountID);
 
     verifiedAccount = Account(
@@ -75,24 +75,9 @@ class Account {
     return true;
   }
 
-  /// Since the account user signed in is stored globally in `verifiedAccount`,
-  /// it can be checked if the `verifiedAccount` ID is equal to the given `account`.
-  /// If so, return [Account] instance, equal to `verifiedAccount`.
-  /// If not => user hasn't signed in to the account with given ID, return null.
-  static Account? tryToGetAccountByID(String accountID) {
-    if (verifiedAccount == null) return null;
-    if (accountID != verifiedAccount!.accountID) return null;
-
-    return Account(
-      accountID: verifiedAccount!.accountID,
-      keyPair: verifiedAccount!.keyPair,
-      robots: verifiedAccount!.robots,
-    );
-  }
-
   /// Adds the given robot to the corresponding account in [RobotDatabase].
   Future<void> addRobot(Robot robot) async {
-    // ensuring that robot with given `robotID` doesn't belong to the account
+    // ensuring that the given robot doesn't belong to the account
     if (robots.contains(robot)) {
       throw ArgumentError(
         "The Robot is already present in the set of robots",
@@ -109,9 +94,9 @@ class Account {
 
   /// Removes the given robot from the corresponding account in [RobotDatabase].
   Future<void> removeRobot(Robot robot) async {
-    // ensuring that robotID belongs to the account
+    // ensuring that the given robot belongs to the account
     if (!robots.contains(robot)) {
-      throw ArgumentError("The Robot is abscent in robotIDs", robot.toString());
+      throw ArgumentError("The Robot is abscent in {robots}", robot.toString());
     }
     try {
       // removing a robot from robotDatabase

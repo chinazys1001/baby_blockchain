@@ -48,11 +48,13 @@ class Robot {
     int randInd = Random.secure().nextInt(16);
     String robotName = randomRobotNames[randInd];
     // checking for "namesakes"
-    int repeats = await RobotDatabase.getNumberOfNamesakes(robotName, ownerID);
+    Set<Robot> robots = await RobotDatabase.getRobots(ownerID);
+    int namesakesCnt =
+        robots.where((robot) => robot.robotName == robotName).length;
     // e.g. if there are robots named Taras and Taras-2 among the robots owned
     // by the corresponding account and randomName = "Taras", then to avoid
     // repeats a suffix "-3" should be added
-    if (repeats > 0) robotName += (repeats + 1).toString();
+    if (namesakesCnt > 0) robotName += (namesakesCnt + 1).toString();
 
     return Robot(
       robotID: robotID,
@@ -65,7 +67,7 @@ class Robot {
   /// Just a code snippet for a method used to connect to the robot.
   /// Expected to return true if the robot approved the request.
   Future<bool> requestConnection() async {
-    Account? owner = Account.tryToGetAccountByID(ownerID);
+    Account? owner = verifiedAccount; // account user singned in to
     if (owner == null) {
       throw Exception("Access to owner account denied");
     }

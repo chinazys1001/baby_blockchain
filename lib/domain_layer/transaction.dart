@@ -18,9 +18,9 @@ class Transaction {
   /// In our case, each transation consists of a single operation. See README for explanation.
   final Operation operation;
 
-  /// Nonce of the seller's account. Stored in [AccountDatabase].
-  // account nonce - total number of times `robotIDs` length of account changed
-  // (which means that nonce gets incremented on every single "purchase"/"sale" try)
+  /// Nonce of the seller's account. Stored in [RobotDatabase].
+  // account nonce - total number of times `robotIDs` length of account increased
+  // (which means that nonce gets incremented on every single try of selling a robot)
   // => nonce is unique for every transaction executed by corresponding account
   final int nonce;
 

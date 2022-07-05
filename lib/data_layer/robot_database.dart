@@ -6,11 +6,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Each document has two fields:
 /// `robots` -> [Set] of [Robot]s, owned by this account
 /// (each [Robot] is defined as a map of its attributes)
-/// `nonce` -> total number of times `robotIDs` length of account changed;
-/// (which means that `nonce` gets incremented on every single "purchase"/"sale").
+/// `nonce` -> total number of times `robots` length of account increased;
+/// (which means that `nonce` gets incremented on every single "sale" attempt).
 class RobotDatabase {
   /// Adds a document with given `accountID` to [RobotDatabase].
-  /// Initially, `robotIDs` list is blank. Nonce equals to zero.
+  /// Initially, `robots` list is blank. Nonce equals to zero.
   static Future<void> addAccount(String accountID) async {
     try {
       await FirebaseFirestore.instance
@@ -18,7 +18,7 @@ class RobotDatabase {
           .doc(accountID.replaceAll('/',
               '-')) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
           .set({
-        "robotIDs": Set.of(<Robot>{}),
+        "robots": Set.of(<Robot>{}),
         "nonce": 0,
       });
     } catch (e) {
@@ -43,7 +43,7 @@ class RobotDatabase {
     }
   }
 
-  /// Returns [Set] of [Robot]s (`robotIDs` field), from the document with given `accountID`.
+  /// Returns [Set] of [Robot]s (`robots` field), from the document with given `accountID`.
   static Future<Set<Robot>> getRobots(String accountID) async {
     try {
       Set<Robot> robots = {};
@@ -52,7 +52,7 @@ class RobotDatabase {
           .doc(accountID.replaceAll('/', '-'))
           .get()
           .then((doc) {
-        List<dynamic> robotsList = doc.get("robotIDs");
+        List<dynamic> robotsList = doc.get("robots");
         robots = Set<Robot>.from(robotsList);
       });
       return Set<Robot>.from(robots);
@@ -78,7 +78,7 @@ class RobotDatabase {
     }
   }
 
-  /// Increments `nonce`. Do call it every time length of [Account] `robotIDs` gets changed
+  /// Increments `nonce`. Do call it every time length of [Account] `robots` gets increased.
   static Future<void> incrementNonce(String accountID) async {
     try {
       await FirebaseFirestore.instance
@@ -122,12 +122,5 @@ class RobotDatabase {
     } catch (e) {
       rethrow;
     }
-  }
-
-  /// Returns number of [Robot]s with the given name owned by the [Account] with given ID.
-  static Future<int> getNumberOfNamesakes(String name, String accountID) async {
-    Set<Robot> robots = await getRobots(accountID);
-    int cnt = robots.where((robot) => robot.robotName == name).length;
-    return cnt;
   }
 }

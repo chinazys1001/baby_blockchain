@@ -10,7 +10,7 @@ class Operation {
     required this.seller,
     required this.buyer,
     required this.robotID,
-    required this.signature,
+    required this.sellerSignature,
   });
 
   /// Account that claims to own the robot.
@@ -23,7 +23,7 @@ class Operation {
   final String robotID;
 
   // Seller signs the operation.
-  Uint8List signature;
+  Uint8List sellerSignature;
 
   // TODO: check if operation is unique (see ref.)
 
@@ -51,14 +51,14 @@ class Operation {
     };
 
     // seller signs hashed operation data
-    Uint8List signature =
+    Uint8List sellerSignature =
         Signature.signData(operationData.toString(), seller.keyPair);
 
     return Operation(
       seller: seller,
       buyer: buyer,
       robotID: robotID,
-      signature: signature,
+      sellerSignature: sellerSignature,
     );
   }
 
@@ -79,7 +79,7 @@ class Operation {
       "robotID": operation.robotID,
     };
 
-    if (!Signature.verifySignature(operation.signature,
+    if (!Signature.verifySignature(operation.sellerSignature,
         operationData.toString(), operation.seller.keyPair)) {
       return false;
     }
@@ -93,8 +93,8 @@ class Operation {
       print("-----------------------Operation-----------------------");
       print("Seller: ${seller.toString()}");
       print("Buyer: ${buyer.toString()}");
-      print("Robot: $robotID");
-      print("Signature: ${signature.toString()}");
+      print("Robot ID: $robotID");
+      print("Signature: ${sellerSignature.toString()}");
       print("-------------------------------------------------------");
     }
   }
@@ -105,7 +105,7 @@ class Operation {
       "seller": seller.toString(),
       "buyer": buyer.toString(),
       "robotID": robotID,
-      "signature": signature.toString(),
+      "signature": sellerSignature.toString(),
     };
     return mapOperation.toString();
   }
