@@ -16,7 +16,7 @@
 
 Методи:
 - **public static KeyPair** *genKeyPair()* - виконує випадкову генерацію ключової пари. Використовується при створенні нового акаунту.
-- **public static KeyPair** *getKeyPairFromPrivateKey(__ECPrivateKey__ privateKey)* - функція отримання ключової пари по даному приватному ключу. Використовується при вході до акаунту.
+- **public static KeyPair** *getKeyPairFromPrivateKey(*__ECPrivateKey__ *privateKey)* - функція отримання ключової пари по даному приватному ключу. Використовується при вході до акаунту.
 - **public void** *printKeyPair()* - для тестування.
 
 ## Клас Signature
