@@ -24,7 +24,7 @@ class _CommonLayoutState extends State<CommonLayout> {
 
   Widget getResponsiveDriverWidget() {
     // bottom navigation bar for mobile phones
-    if (MediaQuery.of(context).size.width < 600) {
+    if (MediaQuery.of(context).size.width < mobileScreenMaxWidthh) {
       return Scaffold(
         backgroundColor: BackgroundColor,
         body: Center(

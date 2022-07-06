@@ -23,10 +23,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget showPrivateKey() => Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width < 600
+          horizontal: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
               ? (MediaQuery.of(context).size.width - 320) / 2
               : (MediaQuery.of(context).size.width - 390) / 2,
-          vertical: MediaQuery.of(context).size.width < 600
+          vertical: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
               ? (MediaQuery.of(context).size.height - 254) / 2
               : (MediaQuery.of(context).size.height - 239) / 2,
         ),
@@ -134,7 +134,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 MaterialButton(
                   shape: const StadiumBorder(),
                   padding: EdgeInsets.all(
-                      MediaQuery.of(context).size.width < 600 ? 15 : 20),
+                      MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                          ? 15
+                          : 20),
                   color: ShadowColor,
                   onPressed: () {
                     Navigator.push(

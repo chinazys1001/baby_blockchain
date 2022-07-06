@@ -57,7 +57,7 @@ class KeyCard extends StatelessWidget {
         child: SizedBox(
           width: MediaQuery.of(context).size.width < 400
               ? 320
-              : MediaQuery.of(context).size.width < 600
+              : MediaQuery.of(context).size.width < mobileScreenMaxWidthh
                   ? 380
                   : 440,
           child: Column(
@@ -66,13 +66,13 @@ class KeyCard extends StatelessWidget {
               const SizedBox(height: 15),
               Icon(
                 isPrivateKey ? LineIcons.key : LineIcons.users,
-                size: 80,
+                size: 120,
                 color: AccentColor,
               ),
               const SizedBox(height: 15),
               Text(
                 isPrivateKey ? "Private Key" : "Public Key",
-                style: const TextStyle(fontSize: bigFontSize, color: DarkColor),
+                style: const TextStyle(fontSize: 32, color: DarkColor),
               ),
               const SizedBox(height: 15),
               Text(
@@ -81,7 +81,8 @@ class KeyCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: MediaQuery.of(context).size.width < 400
                       ? 12
-                      : MediaQuery.of(context).size.width < 600
+                      : MediaQuery.of(context).size.width <
+                              mobileScreenMaxWidthh
                           ? 14
                           : 16,
                   color: DarkColor.withOpacity(0.54),

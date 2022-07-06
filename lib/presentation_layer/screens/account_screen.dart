@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
-import 'package:baby_blockchain/presentation_layer/screens/registration/login_screen.dart';
+import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/key_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,7 +36,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: BackgroundColor,
-      appBar: MediaQuery.of(context).size.width < 600
+      appBar: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
           ? AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: AccentColor,
@@ -141,26 +141,33 @@ class _AccountScreenState extends State<AccountScreen> {
                 ],
               ),
             ),
-      floatingActionButton: MediaQuery.of(context).size.width < 600
-          ? null
-          : Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: FloatingActionButton(
-                tooltip: "Click to sign out",
-                backgroundColor: AccentColor,
-                foregroundColor: LightColor,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (_, a1, a2) => const SignInScreen(),
+      floatingActionButton:
+          MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+              ? null
+              : Padding(
+                  padding: const EdgeInsets.only(right: 10, bottom: 10),
+                  child: SizedBox(
+                    height: 80,
+                    width: 80,
+                    child: FittedBox(
+                      child: FloatingActionButton(
+                        tooltip: "Click to sign out",
+                        backgroundColor: AccentColor,
+                        foregroundColor: LightColor,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, a1, a2) => const SignInScreen(),
+                            ),
+                          );
+                          verifiedAccount = null;
+                        },
+                        child: const Icon(LineIcons.alternateSignOut),
+                      ),
                     ),
-                  );
-                  verifiedAccount = null;
-                },
-                child: const Icon(LineIcons.alternateSignOut),
-              ),
-            ),
+                  ),
+                ),
     );
   }
 }

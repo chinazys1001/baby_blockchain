@@ -47,9 +47,10 @@ class _SignInScreenState extends State<SignInScreen> {
             style: TextStyle(
               fontSize: bigFontSize,
               color: LightColor,
-              fontWeight: MediaQuery.of(context).size.width < 600
-                  ? FontWeight.bold
-                  : null,
+              fontWeight:
+                  MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                      ? FontWeight.bold
+                      : null,
             ),
           ),
           const SizedBox(height: 5),
@@ -59,9 +60,10 @@ class _SignInScreenState extends State<SignInScreen> {
               style: TextStyle(
                 fontSize: bigFontSize,
                 color: LightColor,
-                fontWeight: MediaQuery.of(context).size.width < 600
-                    ? FontWeight.bold
-                    : null,
+                fontWeight:
+                    MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                        ? FontWeight.bold
+                        : null,
               ),
               children: <TextSpan>[
                 const TextSpan(
@@ -69,7 +71,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 TextSpan(
                   text: 'GitHub',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: bigFontSize,
                     color: IndicatorColor,
                     fontWeight: FontWeight.bold,
@@ -90,10 +92,10 @@ class _SignInScreenState extends State<SignInScreen> {
   FocusNode keyFocusNode = FocusNode();
   Widget getLoginForm() => Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width < 600
+          horizontal: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
               ? (MediaQuery.of(context).size.width - 320) / 2
               : (MediaQuery.of(context).size.width - 390) / 2,
-          vertical: MediaQuery.of(context).size.width < 600
+          vertical: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
               ? (MediaQuery.of(context).size.height - 285) / 2
               : (MediaQuery.of(context).size.height - 270) / 2,
         ),
@@ -169,7 +171,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 MaterialButton(
                   shape: const StadiumBorder(),
                   padding: EdgeInsets.all(
-                      MediaQuery.of(context).size.width < 600 ? 15 : 20),
+                      MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                          ? 15
+                          : 20),
                   color: ShadowColor,
                   onPressed: () async {
                     await tryToSignIn();
@@ -210,7 +214,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       TextSpan(
                         text: 'Create an Account',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: smallFontSize,
                           color: IndicatorColor,
                         ),

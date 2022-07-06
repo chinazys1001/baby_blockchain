@@ -57,7 +57,7 @@
 
 Методи:
 - __public static Operation__ *createOperation(*__Account__ *seller,* __Account__ *buyer,* __String__ *robotID)* - функція створення операції передачі робота з даним *robotID* від акаунту *seller* до акаунту *buyer*. Кожна сторена операція має цифровий підпис, здіснений акаунтом *seller*.
-- __public static bool__ *verifyOperation(*__Operation__ *operation)* - функція верифікації даної операції. Перевіряється валідність цифрового підпису операції акаунтом *seller*. 
+- __public static bool__ *verifyOperation(*__Operation__ *operation)* - функція верифікації даної операції. Перевіряється валідність цифрового підпису операції акаунтом *seller* та факт володіння акаунтом *seller* роботом зі вказаним *robotID*. 
 - __void__ *printOperation()* - для тестування.
 
 ## Клас Transaction

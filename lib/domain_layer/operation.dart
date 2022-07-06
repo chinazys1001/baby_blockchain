@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:baby_blockchain/data_layer/robot_database.dart';
 import 'package:baby_blockchain/domain_layer/account.dart';
+import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:baby_blockchain/domain_layer/signature.dart';
 import 'package:flutter/foundation.dart';
 
@@ -63,7 +65,7 @@ class Operation {
   }
 
   /// Checking if both signature is correct and seller does own robot with given id
-  static bool verifyOperation(Operation operation) {
+  static Future<bool> verifyOperation(Operation operation) async {
     if (operation.seller == operation.buyer) return false;
 
     // operation data that must have been signed
@@ -79,11 +81,22 @@ class Operation {
       "robotID": operation.robotID,
     };
 
+    // verifying signature of the data
     if (!Signature.verifySignature(operation.sellerSignature,
         operationData.toString(), operation.seller.keyPair)) {
       return false;
     }
-    // TODO: check in robotDatabase if seller owns robot with given ID
+
+    // verifying if the seller owns robot with given robotID
+    Set<Robot> sellerRobots = await RobotDatabase.getRobots(
+      operation.seller.accountID,
+    ); // getting seller's robots from db
+    if (sellerRobots
+        .where((robot) => robot.robotID == operation.robotID)
+        .isEmpty) {
+      return false; // returning false if seller doesn't own the robot with corresponding robotID
+    }
+
     return true;
   }
 

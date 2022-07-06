@@ -1,5 +1,6 @@
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 
 class RobotCard extends StatelessWidget {
@@ -14,41 +15,64 @@ class RobotCard extends StatelessWidget {
   final bool isTestMode;
   final BuildContext context;
 
+  Widget getRobotDemo() {
+    return InkWell(
+      splashColor: AccentColor.withOpacity(0.5),
+      highlightColor: AccentColor.withOpacity(0.5),
+      borderRadius: mediumBorderRadius,
+      onTap: () {
+        //TODO: (?)
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 20),
+          const Icon(
+            LineIcons.robot,
+            size: 160,
+            color: AccentColor,
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                ? 5
+                : 0,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.orbitron(
+                fontSize: 40,
+                color: DarkColor.withOpacity(0.7),
+                fontWeight: FontWeight.w100,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
       elevation: 4,
       color: LightColor,
       shadowColor: Colors.blueGrey,
-      borderRadius: bigBorderRadius,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width < 400
-            ? 320
-            : MediaQuery.of(context).size.width < 600
-                ? 380
-                : 440,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 15),
-            const Icon(
-              LineIcons.robot,
-              size: 180,
-              color: AccentColor,
-            ),
-            const SizedBox(height: 15),
-            Text(
-              name,
-              maxLines: 1,
-              style: const TextStyle(
-                fontSize: bigFontSize * 2,
-                color: DarkColor,
+      borderRadius: mediumBorderRadius,
+      child: isTestMode
+          ? ClipRect(
+              child: Banner(
+                message: "Test Mode",
+                location: BannerLocation.topEnd,
+                color: IndicatorColor,
+                child: getRobotDemo(),
               ),
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
+            )
+          : getRobotDemo(),
     );
   }
 }

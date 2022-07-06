@@ -1,6 +1,6 @@
 import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
-import 'package:baby_blockchain/presentation_layer/screens/registration/login_screen.dart';
+import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -31,7 +31,7 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: BackgroundColor,
-      appBar: MediaQuery.of(context).size.width < 600
+      appBar: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
           ? AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: AccentColor,
