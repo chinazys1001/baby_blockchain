@@ -1,0 +1,43 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "baby_blockchain",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "baby_blockchain (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "baby_blockchain (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "firebase_admin_interop",
+            "cwd": "lib\\data_layer\\firebase_admin_interop",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "firebase_functions_interop",
+            "cwd": "lib\\data_layer\\firebase_functions_interop",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "functions",
+            "cwd": "lib\\data_layer\\firebase_functions_interop\\functions",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}

@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:baby_blockchain/domain_layer/account.dart';
-import 'package:baby_blockchain/domain_layer/blockchain.dart';
-import 'package:baby_blockchain/domain_layer/robot.dart';
-import 'package:baby_blockchain/domain_layer/signature.dart';
-import 'package:flutter/foundation.dart';
+import 'account.dart';
+import 'blockchain.dart';
+import 'robot.dart';
+import 'signature.dart';
 
 /// Custom implementation of [Operation] class. Usage description can be found in README.
 class Operation {
@@ -94,14 +93,12 @@ class Operation {
 
   /// Testing-only
   void printOperation() {
-    if (kDebugMode) {
-      print("-----------------------Operation-----------------------");
-      print("sender: $senderID");
-      print("receiver: $receiverID");
-      print("Robot ID: $robotID");
-      print("Signature: ${senderSignature.toString()}");
-      print("-------------------------------------------------------");
-    }
+    print("-----------------------Operation-----------------------");
+    print("sender: $senderID");
+    print("receiver: $receiverID");
+    print("Robot ID: $robotID");
+    print("Signature: ${senderSignature.toString()}");
+    print("-------------------------------------------------------");
   }
 
   factory Operation.fromJson(Map<String, dynamic> json) {
@@ -109,7 +106,7 @@ class Operation {
       senderID: json['senderID'] as String,
       receiverID: json['receiverID'] as String,
       robotID: json['robotID'] as String,
-      senderSignature: json['signature'].cast<int>(),
+      senderSignature: json["signature"].cast<int>(),
     );
   }
 

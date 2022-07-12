@@ -17,7 +17,7 @@ class KeyCard extends StatelessWidget {
   final bool isPrivateKey;
   final BuildContext context;
 
-  void copyKey() async {
+  void _copyKey() async {
     await Clipboard.setData(
       ClipboardData(text: value),
     ).then(
@@ -27,7 +27,7 @@ class KeyCard extends StatelessWidget {
           child: Text(
             isPrivateKey
                 ? "Private key was copied to clipboard"
-                : "Public key was copied to clipboard",
+                : "Account ID was copied to clipboard",
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -52,8 +52,8 @@ class KeyCard extends StatelessWidget {
         splashColor: AccentColor.withOpacity(0.5),
         highlightColor: AccentColor.withOpacity(0.5),
         borderRadius: bigBorderRadius,
-        onTap: copyKey,
-        onLongPress: copyKey,
+        onTap: _copyKey,
+        onLongPress: _copyKey,
         child: SizedBox(
           width: MediaQuery.of(context).size.width < 400
               ? 320
@@ -71,7 +71,7 @@ class KeyCard extends StatelessWidget {
               ),
               const SizedBox(height: 15),
               Text(
-                isPrivateKey ? "Private Key" : "Public Key",
+                isPrivateKey ? "Private Key" : "Account ID",
                 style: const TextStyle(fontSize: 32, color: DarkColor),
               ),
               const SizedBox(height: 15),

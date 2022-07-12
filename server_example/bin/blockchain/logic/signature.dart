@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:typed_data';
 
-import 'package:baby_blockchain/domain_layer/hash.dart';
-import 'package:baby_blockchain/domain_layer/key_pair.dart';
 import 'package:crypton/crypton.dart';
+
+import 'hash.dart';
+import 'key_pair.dart';
 
 /// Custom implementation of [Signature] class. Usage description can be found in README.
 /// [Signature] uses private key to sign

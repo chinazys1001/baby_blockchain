@@ -1,12 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:baby_blockchain/data_layer/robot_database.dart';
-import 'package:baby_blockchain/domain_layer/blockchain.dart';
-import 'package:baby_blockchain/domain_layer/key_pair.dart';
-import 'package:baby_blockchain/domain_layer/operation.dart';
-import 'package:baby_blockchain/domain_layer/robot.dart';
-import 'package:baby_blockchain/domain_layer/signature.dart';
-import 'package:flutter/foundation.dart';
+import 'blockchain.dart';
+import 'key_pair.dart';
+import 'operation.dart';
+import 'robot.dart';
+import 'signature.dart';
 
 /// Account user successfully signed-in to
 Account? verifiedAccount;
@@ -137,20 +135,16 @@ class Account {
   // equivalent of printBalance()
   /// Testing-only
   void printRobots() {
-    if (kDebugMode) {
-      print("Robots: ${robots.toString()}");
-    }
+    print("Robots: ${robots.toString()}");
   }
 
   /// Testing-only
   void printAccount() {
-    if (kDebugMode) {
-      print("------------------------Account------------------------");
-      print("Account ID: $accountID");
-      print("Key Pair: ${keyPair.toString()}");
-      print("Robots: ${robots.toString()}");
-      print("-------------------------------------------------------");
-    }
+    print("------------------------Account------------------------");
+    print("Account ID: $accountID");
+    print("Key Pair: ${keyPair.toString()}");
+    print("Robots: ${robots.toString()}");
+    print("-------------------------------------------------------");
   }
 
   @override

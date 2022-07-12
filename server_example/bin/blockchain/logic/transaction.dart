@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-import 'package:baby_blockchain/data_layer/robot_database.dart';
-import 'package:baby_blockchain/domain_layer/blockchain.dart';
-import 'package:baby_blockchain/domain_layer/hash.dart';
-import 'package:baby_blockchain/domain_layer/operation.dart';
-import 'package:flutter/foundation.dart';
+import 'blockchain.dart';
+import 'hash.dart';
+import 'operation.dart';
 
 /// Custom implementation of [Transaction] class. Usage description can be found in README.
 class Transaction {
@@ -50,13 +48,11 @@ class Transaction {
 
   /// Testing-only
   void printTransaction() {
-    if (kDebugMode) {
-      print("----------------------Transaction----------------------");
-      print("Transaction ID: $transactionID");
-      print("Nonce: ${nonce.toString()}");
-      print("Operation: ${operation.toString()}");
-      print("-------------------------------------------------------");
-    }
+    print("----------------------Transaction----------------------");
+    print("Transaction ID: $transactionID");
+    print("Nonce: ${nonce.toString()}");
+    print("Operation: ${operation.toString()}");
+    print("-------------------------------------------------------");
   }
 
   factory Transaction.fromJson(Map<String, dynamic> json) {

@@ -1,10 +1,11 @@
 import 'dart:math';
 
-import 'package:baby_blockchain/data_layer/robot_database.dart';
 import 'package:baby_blockchain/domain_layer/account.dart';
+import 'package:baby_blockchain/domain_layer/blockchain.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/empty_banner.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/loading_overlay.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/robot_card.dart';
 import 'package:flutter/material.dart';
@@ -48,17 +49,19 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
 
     await verifiedAccount!.addRobot(randomRobot);
 
-    await RobotDatabase.incrementNonce(verifiedAccount!.accountID).then(
-      (value) => Future.delayed(
-        const Duration(seconds: 1),
-        () {
-          Navigator.pop(context);
-          setState(() {
-            robotsList = List.from(verifiedAccount!.robots);
-          });
-        },
-      ),
-    );
+    await blockchain.robotDatabase
+        .incrementNonce(verifiedAccount!.accountID)
+        .then(
+          (value) => Future.delayed(
+            const Duration(seconds: 1),
+            () {
+              Navigator.pop(context);
+              setState(() {
+                robotsList = List.from(verifiedAccount!.robots);
+              });
+            },
+          ),
+        );
   }
 
   double getPadding(BuildContext context) {
@@ -101,33 +104,35 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
               ],
             )
           : null,
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount:
-              MediaQuery.of(context).size.width ~/ (300 + getPadding(context)),
-          mainAxisExtent: 310,
-        ),
-        padding: EdgeInsets.only(
-          left: getPadding(context),
-          bottom: getPadding(context),
-        ),
-        itemCount: robotsList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 0,
-              right: getPadding(context),
-              top: getPadding(context),
-              bottom: 0,
+      body: robotsList.isEmpty
+          ? const EmptyBunner()
+          : GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: MediaQuery.of(context).size.width ~/
+                    (300 + getPadding(context)),
+                mainAxisExtent: 310,
+              ),
+              padding: EdgeInsets.only(
+                left: getPadding(context),
+                bottom: getPadding(context),
+              ),
+              itemCount: robotsList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    left: 0,
+                    right: getPadding(context),
+                    top: getPadding(context),
+                    bottom: 0,
+                  ),
+                  child: RobotCard(
+                    name: robotsList[index].robotName,
+                    isTestMode: robotsList[index].isTestMode,
+                    context: context,
+                  ),
+                );
+              },
             ),
-            child: RobotCard(
-              name: robotsList[index].robotName,
-              isTestMode: robotsList[index].isTestMode,
-              context: context,
-            ),
-          );
-        },
-      ),
       floatingActionButton:
           MediaQuery.of(context).size.width < mobileScreenMaxWidthh
               ? null

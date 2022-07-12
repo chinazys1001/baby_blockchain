@@ -12,8 +12,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // await Account.tryToSignInToAccount(
-  //     "Rjr5CrqiO8WQGq9s1FYtb/XWpZ3AncW+N+JSUgkytZ8=");
+  await Account.tryToSignInToAccount(
+      "Rjr5CrqiO8WQGq9s1FYtb/XWpZ3AncW+N+JSUgkytZ8=");
 
   runApp(const MyApp());
 }

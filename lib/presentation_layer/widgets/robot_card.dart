@@ -2,6 +2,7 @@ import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:http/http.dart' as http;
 
 class RobotCard extends StatelessWidget {
   const RobotCard({
@@ -20,8 +21,11 @@ class RobotCard extends StatelessWidget {
       splashColor: AccentColor.withOpacity(0.5),
       highlightColor: AccentColor.withOpacity(0.5),
       borderRadius: mediumBorderRadius,
-      onTap: () {
+      onTap: () async {
         //TODO: (?)
+        await http
+            .post(Uri.parse("http://localhost:8080"))
+            .then((response) => print(response.statusCode));
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,

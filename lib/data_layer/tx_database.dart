@@ -9,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // and here. Adding prefi
 /// `nonce` -> nonce of transaction.
 class TXDatabase {
   /// Adds given transaction to [TXDatabase].
-  static Future<void> addTransaction(tr.Transaction transaction) async {
+  Future<void> addTransaction(tr.Transaction transaction) async {
     try {
       await FirebaseFirestore.instance
           .collection("txDatabase")
@@ -22,5 +22,37 @@ class TXDatabase {
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<bool> transactionExists(tr.Transaction transaction) async {
+    bool exists = false;
+    await FirebaseFirestore.instance
+        .collection("txDatabase")
+        .where(
+          FieldPath.documentId,
+          isEqualTo: transaction.transactionID,
+        )
+        .get()
+        .then((collection) => exists = collection.docs.isEmpty);
+    return exists;
+  }
+
+  /// Testing-only
+  Future<String> txDatabaseToString() async {
+    String res = "";
+    await FirebaseFirestore.instance
+        .collection("txDatabase")
+        .get()
+        .then((collection) {
+      for (QueryDocumentSnapshot<Map<String, dynamic>> doc in collection.docs) {
+        Map<String, dynamic> mapDoc = {
+          "transactionID": doc.id,
+          "nonce": doc.get("nonce"),
+          "operations": doc.get("operations"),
+        };
+        res += '$mapDoc\n';
+      }
+    });
+    return res;
   }
 }

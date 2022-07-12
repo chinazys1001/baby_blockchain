@@ -1,12 +1,10 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:baby_blockchain/domain_layer/account.dart';
-import 'package:baby_blockchain/domain_layer/blockchain.dart';
-import 'package:baby_blockchain/domain_layer/hash.dart';
-import 'package:baby_blockchain/domain_layer/verificational_token.dart';
-import 'package:baby_blockchain/presentation_layer/constants.dart';
-import 'package:flutter/foundation.dart';
+import 'account.dart';
+import 'blockchain.dart';
+import 'hash.dart';
+import 'verificational_token.dart';
 
 /// Basic instance of [Robot] class is defined with following objects:
 /// `name` -> name of a robot with corresponding ID;
@@ -45,6 +43,24 @@ class Robot {
 
     // getting random name from `randomRobotsNames`
     int randInd = Random.secure().nextInt(16);
+    List<String> randomRobotNames = const [
+      "Demian",
+      "Yosyp",
+      "Casimir",
+      "Liubomyr",
+      "Markiian",
+      "Marian",
+      "Omelian",
+      "Orest",
+      "Ostap",
+      "Pylyp",
+      "Sava",
+      "Stepan",
+      "Taras",
+      "Fedir",
+      "Yukhym",
+      "Yakiv",
+    ];
     String robotName = randomRobotNames[randInd];
     // checking for "namesakes"
     Set<Robot> robots = await blockchain.robotDatabase.getRobots(ownerID);
@@ -73,7 +89,7 @@ class Robot {
         VerificationalToken.generate(owner, robotID);
 
     if (isTestMode) {
-      debugPrint("Generated token: ${verificationalToken.toString()}");
+      print("Generated token: ${verificationalToken.toString()}");
     }
 
     // now the generated token can be send to the robot, for instance, via Bluetooth:
@@ -122,14 +138,12 @@ class Robot {
 
   /// Testing-only
   void printRobot() {
-    if (kDebugMode) {
-      print("-------------------------Robot-------------------------");
-      print("Robot ID: $robotID");
-      print("Robot name: $robotName");
-      print("Owner ID: $ownerID");
-      if (isTestMode) print("Mode: Test");
-      print("-------------------------------------------------------");
-    }
+    print("-------------------------Robot-------------------------");
+    print("Robot ID: $robotID");
+    print("Robot name: $robotName");
+    print("Owner ID: $ownerID");
+    if (isTestMode) print("Mode: Test");
+    print("-------------------------------------------------------");
   }
 
   @override
