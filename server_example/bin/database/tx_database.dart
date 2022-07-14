@@ -1,6 +1,6 @@
 import 'package:firedart/firedart.dart';
 
-import '../logic/transaction.dart'; // and here. Adding prefix "as tr" to manage conflicts.
+import '../blockchain/transaction.dart'; // and here. Adding prefix "as tr" to manage conflicts.
 
 /// Transactions Database
 /// ID of each DB document -> ID of corresponding transaction.
@@ -13,10 +13,9 @@ class TXDatabase {
     try {
       await Firestore.instance
           .collection("txDatabase")
-          .document(transaction
-              .transactionID) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .document(transaction.transactionID)
           .set({
-        "operation": transaction.operation,
+        "operation": transaction.operation.toJSON(),
         "nonce": transaction.nonce,
       });
     } catch (e) {

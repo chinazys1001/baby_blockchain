@@ -12,17 +12,17 @@ import 'verificational_token.dart';
 /// `owner` -> ID of master-account;
 /// `isTestMode` -> true if the robot was generated as an instance for testing.
 class Robot {
-  const Robot({
+  Robot({
     required this.robotID,
     required this.ownerID,
     required this.robotName,
     this.isTestMode = false,
   });
 
-  final String robotID;
-  final String ownerID;
-  final String robotName;
-  final bool isTestMode;
+  final String robotID; // immutable
+  String ownerID; // mutable
+  String robotName; // mutable
+  final bool isTestMode; // immutable
 
   /// Generates a [Robot] with unique `robotID` (among all accounts)
   /// and unique `robotName` (among the robots currently owned by the account with the given `ownerID`).
@@ -36,7 +36,7 @@ class Robot {
     // since ownerID is unique and nonce of the account with ownerID increments
     // on each transaction received/sent from the account,
     // robotID = (ownerID + nonce) seems to be unique => its hash is unique as well
-    int nonce = await blockchain.robotDatabase.getNonce(ownerID);
+    int nonce = await blockchain!.robotDatabase.getNonce(ownerID);
     String robotID = Hash.toSHA256(ownerID + nonce.toString());
 
     // Step 2. Generating a unique name among owner's robots:
@@ -61,15 +61,12 @@ class Robot {
       "Yukhym",
       "Yakiv",
     ];
-    String robotName = randomRobotNames[randInd];
-    // checking for "namesakes"
-    Set<Robot> robots = await blockchain.robotDatabase.getRobots(ownerID);
-    int namesakesCnt =
-        robots.where((robot) => robot.robotName == robotName).length;
+    // robot's name is not unique globally, but must be unique across all robots
+    // of the robot-owner account
     // e.g. if there are robots named Taras and Taras-2 among the robots owned
     // by the corresponding account and randomName = "Taras", then to avoid
     // repeats a suffix "-3" should be added
-    if (namesakesCnt > 0) robotName += "-${(namesakesCnt + 1).toString()}";
+    String robotName = await getUniqueName(randomRobotNames[randInd], ownerID);
 
     return Robot(
       robotID: robotID,
@@ -77,6 +74,26 @@ class Robot {
       robotName: robotName,
       isTestMode: isTestMode,
     );
+  }
+
+  /// If needed, adds unique suffix to `robotName` to avoid coinsidences with
+  /// other robots owned by the account with given `ownerID`.
+  static Future<String> getUniqueName(String robotName, String ownerID) async {
+    // getting rid of suffix if robotName already contains it (e.g. Taras-__ -> Taras)
+    int dashInd = robotName.indexOf('-');
+    if (dashInd >= 0 && dashInd <= robotName.length) {
+      robotName = robotName.substring(0, dashInd);
+    }
+
+    // checking for namesakes
+    Set<Robot> robots = await blockchain!.robotDatabase.getRobots(ownerID);
+    int namesakesCnt =
+        robots.where((robot) => robot.robotName == robotName).length;
+
+    // updating with unique suffix if needed
+    if (namesakesCnt > 0) robotName += "-${(namesakesCnt + 1).toString()}";
+
+    return robotName;
   }
 
   /// Just a code snippet for a method used to connect to the robot.

@@ -42,10 +42,7 @@ class Operation {
 
     // operation data to be signed
     Map<String, dynamic> operationData = {
-      "sender": {
-        "id": sender.accountID,
-        "keyPair": sender.keyPair,
-      },
+      "senderID": sender.accountID,
       "receiverID": receiverID,
       "robotID": robotID,
     };
@@ -68,7 +65,7 @@ class Operation {
 
     // operation data that must have been signed
     Map<String, dynamic> operationData = {
-      "sender": operation.senderID,
+      "senderID": operation.senderID,
       "receiverID": operation.receiverID,
       "robotID": operation.robotID,
     };
@@ -104,12 +101,12 @@ class Operation {
     }
   }
 
-  factory Operation.fromJson(Map<String, dynamic> json) {
+  factory Operation.fromJSON(Map<String, dynamic> json) {
     return Operation(
       senderID: json['senderID'] as String,
       receiverID: json['receiverID'] as String,
       robotID: json['robotID'] as String,
-      senderSignature: json['signature'].cast<int>(),
+      senderSignature: Uint8List.fromList(json['signature'].cast<int>()),
     );
   }
 

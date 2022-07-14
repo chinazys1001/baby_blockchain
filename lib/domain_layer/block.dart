@@ -1,3 +1,4 @@
+import 'package:baby_blockchain/domain_layer/blockchain.dart';
 import 'package:baby_blockchain/domain_layer/transaction.dart'
     as tr; // Transaction class is defined both here
 import 'package:cloud_firestore/cloud_firestore.dart'; // and here. Adding prefix "as tr" to manage conflicts.
@@ -10,7 +11,7 @@ class Block {
     required this.blockID,
     required this.prevHash,
     required this.setOfTransactions,
-    required this.timestamp,
+    required this.height,
   });
 
   /// Unique Id of a [Block] is equal to the hash value of `prevHash` and `setOfTransactions`.
@@ -22,21 +23,25 @@ class Block {
   /// Set of [Transaction]s to be included in the [Block].
   final Set<tr.Transaction> setOfTransactions;
 
-  /// Timestamp of the block creation.
-  final Timestamp timestamp;
+  /// Height of the block.
+  final int height;
 
-  /// Creating block, which contains the given `setOfTransactions`, `prevHash` and
-  /// current timestamp. Block ID is hash value of these values.
-  static Block createBlock(
-    Set<tr.Transaction> setOfTransactions,
-    String prevHash,
-  ) {
-    String blockID = Hash.toSHA256(prevHash + setOfTransactions.toString());
+  /// Creating block, which contains the given `setOfTransactions`.
+  /// Block `prevHash` is the ID of the last block in `blockHistory`.
+  /// Block `height` is the height of the last block in `blockHistory` + 1.
+  /// Block `blockID` is hash value of these values.
+  static Future<Block> createBlock(
+      Set<tr.Transaction> setOfTransactions) async {
+    Block topBlock = await blockchain.blockHistory.getTopBlock();
+    String blockID = Hash.toSHA256(topBlock.blockID +
+        setOfTransactions.toString() +
+        {topBlock.height + 1}.toString());
+
     return Block(
       blockID: blockID,
-      prevHash: prevHash,
+      prevHash: topBlock.blockID,
       setOfTransactions: setOfTransactions,
-      timestamp: Timestamp.now(),
+      height: topBlock.height + 1,
     );
   }
 
@@ -47,7 +52,7 @@ class Block {
       print("Block ID: $blockID");
       print("Previous Hash: $prevHash");
       print("Nonce: ${setOfTransactions.toString()}");
-      print("Timestamp: ${timestamp.toDate().toString()}");
+      print("Height: ${height.toString()}");
       print("-------------------------------------------------------");
     }
   }
@@ -58,7 +63,7 @@ class Block {
       "blockID": blockID,
       "prevHash": prevHash,
       "setOfTransactions": setOfTransactions.toString(),
-      "timestamp": timestamp.toDate().toString(),
+      "height": height.toString(),
     };
     return mapTransaction.toString();
   }

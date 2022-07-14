@@ -42,7 +42,7 @@ class _SignInScreenState extends State<SignInScreen> {
           const LoadingIndicator(),
           const SizedBox(height: 5),
           Text(
-            "Release date: 12.07.2022",
+            "Release date: 14.07.2022",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: bigFontSize,

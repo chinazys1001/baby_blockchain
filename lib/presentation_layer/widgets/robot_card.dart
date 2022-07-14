@@ -23,9 +23,6 @@ class RobotCard extends StatelessWidget {
       borderRadius: mediumBorderRadius,
       onTap: () async {
         //TODO: (?)
-        await http
-            .post(Uri.parse("http://localhost:8080"))
-            .then((response) => print(response.statusCode));
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,

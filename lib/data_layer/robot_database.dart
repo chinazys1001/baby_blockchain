@@ -2,11 +2,12 @@ import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// RobotDatabase stores data of all user account.
 /// ID of each DB document -> ID of corresponding account.
 /// Each document has two fields:
 /// `robots` -> [Set] of [Robot]s, owned by this account
 /// (each [Robot] is defined as a map of its attributes)
-/// `nonce` -> total number of times `robots` length of account increased;
+/// `nonce` -> total number of times `robots` length of account decreased;
 /// (which means that `nonce` gets incremented on every single "sale" attempt).
 class RobotDatabase {
   /// Adds a document with given `accountID` to [RobotDatabase].
@@ -78,7 +79,7 @@ class RobotDatabase {
     }
   }
 
-  /// Increments `nonce`. Do call it every time length of [Account] `robots` gets increased.
+  /// Increments `nonce`. Do call it every time length of [Account] `robots` gets decreased.
   Future<void> incrementNonce(String accountID) async {
     try {
       await FirebaseFirestore.instance

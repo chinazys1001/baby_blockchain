@@ -38,7 +38,7 @@ class Account {
     Set<Robot> robots = {};
 
     // adding the account to RobotDatabase.
-    await blockchain.robotDatabase.addAccount(accountID);
+    await blockchain!.robotDatabase.addAccount(accountID);
 
     return Account(
       accountID: accountID,
@@ -60,11 +60,11 @@ class Account {
 
     // checking if the account exists
     bool accountIsValid =
-        await blockchain.robotDatabase.accountExists(accountID);
+        await blockchain!.robotDatabase.accountExists(accountID);
     if (!accountIsValid) return false; // returning null if not
 
     // getting robots from robotDatabase
-    Set<Robot> robots = await blockchain.robotDatabase.getRobots(accountID);
+    Set<Robot> robots = await blockchain!.robotDatabase.getRobots(accountID);
 
     verifiedAccount = Account(
       accountID: accountID,
@@ -86,7 +86,7 @@ class Account {
     }
     try {
       // adding a robot in robotDatabase
-      await blockchain.robotDatabase.addRobot(robot);
+      await blockchain!.robotDatabase.addRobot(robot);
       // updating current state
       robots.add(robot);
     } catch (e) {
@@ -102,7 +102,7 @@ class Account {
     }
     try {
       // removing a robot from robotDatabase
-      await blockchain.robotDatabase.removeRobot(robot);
+      await blockchain!.robotDatabase.removeRobot(robot);
       // updating current state
       robots.remove(robot);
     } catch (e) {

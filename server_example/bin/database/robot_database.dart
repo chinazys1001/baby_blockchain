@@ -1,12 +1,12 @@
 import 'package:firedart/firedart.dart';
 
-import '../logic/robot.dart';
+import '../blockchain/robot.dart';
 
 /// ID of each DB document -> ID of corresponding account.
 /// Each document has two fields:
 /// `robots` -> [Set] of [Robot]s, owned by this account
 /// (each [Robot] is defined as a map of its attributes)
-/// `nonce` -> total number of times `robots` length of account increased;
+/// `nonce` -> total number of times `robots` length of account decreased;
 /// (which means that `nonce` gets incremented on every single "sale" attempt).
 class RobotDatabase {
   /// Adds a document with given `accountID` to [RobotDatabase].
@@ -78,7 +78,7 @@ class RobotDatabase {
     }
   }
 
-  /// Increments `nonce`. Do call it every time length of [Account] `robots` gets increased.
+  /// Increments `nonce`. Do call it every time length of [Account] `robots` gets decreased.
   Future<void> incrementNonce(String accountID) async {
     try {
       int curNonce = 0;
@@ -98,7 +98,7 @@ class RobotDatabase {
     }
   }
 
-  /// Adds the given [Robot] to the [Account] corresponding to the given `robot.ownerID`.
+  /// Adds the given [Robot] to the account corresponding to the given `robot.ownerID`.
   Future<void> addRobot(Robot robot) async {
     try {
       List<dynamic> curRobots = [];
@@ -106,7 +106,7 @@ class RobotDatabase {
           .collection("robotDatabase")
           .document(robot.ownerID.replaceAll('/', '-'))
           .get()
-          .then((doc) => curRobots = doc.map["robots"]);
+          .then((doc) => curRobots = List.from(doc.map["robots"]));
       curRobots.add(robot.toMap());
 
       // adding robot to robotDatabase
@@ -122,7 +122,7 @@ class RobotDatabase {
     }
   }
 
-  /// Removes the given [Robot] from the [Account] corresponding to the given `robot.ownerID`.
+  /// Removes the given [Robot] from the account corresponding to the given `robot.ownerID`.
   Future<void> removeRobot(Robot robot) async {
     try {
       List<dynamic> curRobots = [];
@@ -130,9 +130,9 @@ class RobotDatabase {
           .collection("robotDatabase")
           .document(robot.ownerID.replaceAll('/', '-'))
           .get()
-          .then((doc) => curRobots = doc.map["robots"]);
-      curRobots.remove(robot.toMap());
-
+          .then((doc) => curRobots = List.from(doc.map["robots"]));
+      curRobots
+          .removeWhere((robotData) => robotData["robotID"] == robot.robotID);
       // adding robot to robotDatabase
       await Firestore.instance
           .collection("robotDatabase")

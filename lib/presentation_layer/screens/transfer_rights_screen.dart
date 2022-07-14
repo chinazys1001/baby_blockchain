@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:motion_toast/motion_toast.dart';
-import 'package:http/http.dart' as http;
 
 class TransferRightsScreen extends StatefulWidget {
   const TransferRightsScreen({Key? key}) : super(key: key);
@@ -111,16 +110,19 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
         verifiedAccount!.createOperation(receiverID, robot.robotID);
 
     Transaction transaction = await Transaction.createTransaction(operation);
+    await blockchain.mempool
+        .addTransaction(transaction)
+        .then((value) => Navigator.pop(context));
 
-    await http
-        .post(
-      Uri.parse("http://localhost:8080/post/transaction"),
-      body: transaction.toJSONString(),
-    )
-        .then((response) {
-      print(response.body);
-      Navigator.pop(context);
-    });
+    // await http
+    //     .post(
+    //   Uri.parse("http://localhost:8080/transaction"),
+    //   body: transaction.toJSONString(),
+    // )
+    //     .then((response) {
+    //   print(response.body);
+    // Navigator.pop(context);
+    //});
   }
 
   @override

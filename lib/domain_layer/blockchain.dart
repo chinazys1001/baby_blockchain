@@ -1,18 +1,19 @@
 import 'package:baby_blockchain/data_layer/block_history.dart';
+import 'package:baby_blockchain/data_layer/mempool.dart';
 import 'package:baby_blockchain/data_layer/robot_database.dart';
 import 'package:baby_blockchain/data_layer/tx_database.dart';
 import 'package:baby_blockchain/domain_layer/block.dart';
 import 'package:baby_blockchain/domain_layer/hash.dart';
+import 'package:baby_blockchain/domain_layer/operation.dart';
 import 'package:flutter/foundation.dart';
-import 'package:baby_blockchain/domain_layer/transaction.dart'
-    as tr; // Transaction class is defined both here
-import 'package:cloud_firestore/cloud_firestore.dart'; // and here. Adding prefix "as tr" to manage conflicts.
+import 'package:baby_blockchain/domain_layer/transaction.dart';
 
 /// Global instance of [Blockchain] class, which is used to interact with the blockhain resources.
 Blockchain blockchain = Blockchain(
   robotDatabase: RobotDatabase(),
   blockHistory: BlockHistory(),
   txDatabase: TXDatabase(),
+  mempool: Mempool(),
 );
 
 /// Custom implementation of [Blockchain] class. Usage description can be found in README.
@@ -21,6 +22,7 @@ class Blockchain {
     required this.robotDatabase,
     required this.blockHistory,
     required this.txDatabase,
+    required this.mempool,
   });
 
   /// Technically, `robotDatabase` is a HashMap (key -> accountID,
@@ -39,6 +41,11 @@ class Blockchain {
   /// to simplify the interaction with the server-side resources.
   final TXDatabase txDatabase;
 
+  /// Technically, `mempool` is a set of all pending transactions.
+  /// [TXDatabase] class was additionally created in order
+  /// to simplify the interaction with the server-side resources.
+  final Mempool mempool;
+
   /// Initializing blockchain: both `robotDatabase` and `txDatabase` are empty.
   /// `blockHistory` contains the generated genesis block.
   /// Genesis block has an undefined `prevHash` and an empty `setOfTransactions`.
@@ -47,17 +54,18 @@ class Blockchain {
     RobotDatabase robotDatabase = RobotDatabase();
     BlockHistory blockHistory = BlockHistory();
     TXDatabase txDatabase = TXDatabase();
+    Mempool mempool = Mempool();
 
     // adding genesis block to the blockHistory
-    Set<tr.Transaction> setOfTransactions = {}; // empty
-    Timestamp timestamp = Timestamp.now(); // current timestamp
-    String blockID =
-        Hash.toSHA256(timestamp.toString()); // other fields are empty
+    Set<Transaction> setOfTransactions = {}; // empty
+    int height = 0;
+    String blockID = Hash.toSHA256(height.toString() +
+        setOfTransactions.toString()); // other fields are empty
     Block genesisBlock = Block(
       blockID: blockID,
       prevHash: "", // undefined
       setOfTransactions: setOfTransactions,
-      timestamp: timestamp,
+      height: height,
     );
     await blockHistory.addBlock(genesisBlock);
 
@@ -65,6 +73,7 @@ class Blockchain {
       robotDatabase: robotDatabase,
       blockHistory: blockHistory,
       txDatabase: txDatabase,
+      mempool: mempool,
     );
   }
 
@@ -73,35 +82,41 @@ class Blockchain {
   /// 2. Checking if all the transactions of the given block are absent in `txDatabase`.
   /// 3. Checking if there are no transaction conflicts.
   /// 4. Verifying operations of each transaction using [Operation.verifyOperaton].
-  /// If all validation steps complete normally, the block gets added to `blockHistory`.
-  Future<void> validateBlock(Block block) async {
+  /// If all validation steps complete normally, the block gets added to `blockHistory`,
+  /// its transactions are executed and added to `txDataabase` and null is returned.
+  /// If any step fails error is returned. Error is a pair<step_number, error_description>.
+  Future<Map<int, dynamic>?> validateBlock(Block block) async {
     // step 1. comparing block.prevHash with ID of the top block in blockHistory
-    // if they are not equal, throwing error
-    String topBlockID = await blockHistory.getTopBlockID();
-    if (topBlockID != block.prevHash) {
-      throw ArgumentError(
-        "prevHash != ID of top block",
-        block.prevHash,
-      );
+    // if they are not equal, return error
+    Block topBlock = await blockHistory.getTopBlock();
+    if (topBlock.blockID != block.prevHash) {
+      return {0: topBlock.blockID};
     }
 
     // step 2. checking for each transaction if it is absent in txDatabase
-    // if at least one transaction is present in txDatabase, throwing error
-    for (tr.Transaction transaction in block.setOfTransactions) {
+    // if at least one transaction is present in txDatabase, return error
+    for (Transaction transaction in block.setOfTransactions) {
       bool transactionAlreadyExists =
           await txDatabase.transactionExists(transaction);
       if (transactionAlreadyExists) {
-        throw ArgumentError(
-          "transaction = ${transaction.toString()} already exists in txDatabase",
-          block.setOfTransactions.toString(),
-        );
+        return {2: transaction};
       }
     }
 
-    // step 3. going through all transactions and checking if there are attempts
+    // step 3. verifying each operation using [Operation.verifyOperation] method
+    for (Transaction transaction in block.setOfTransactions) {
+      bool operationIsValid =
+          await Operation.verifyOperation(transaction.operation);
+      if (!operationIsValid) {
+        // return error
+        return {3: transaction};
+      }
+    }
+
+    // step 4. going through all transactions and checking if there are attempts
     // to transfer the same robot from one account to at least 2 other accounts.
     // to clarify, here is an example of such a conflict:
-    // say account A owns robot R (if it actually does - we'll check in the 4-th step).
+    // say account A owns robot R (if it actually does - we've verified in the 3-rd step).
     // let's assume there is a transaction T1 which "sends" Robot R from
     // account A to some account B. this transaction seems to be OK.
     // the issue comes in when there is an attempt to create some other
@@ -109,7 +124,7 @@ class Blockchain {
     // if there is no some other transaction T3, which "returns" robot R to account A,
     // we`ve run into a problem - transaction T2 tries to "send" robot R from account A,
     // although account A actually does not own the robot (as a result of transaction T1).
-    // if smth similar occurs, the error is thrown
+    // if smth similar occurs, FALSE is returned
 
     // emulating the changes the transactions of block.setOfTransactions result in
     // key is account ID, value is Map with boolean keys
@@ -118,7 +133,7 @@ class Blockchain {
     Map<String, Map<bool, Map<String, int>>> trState = {};
 
     // completing trState
-    for (tr.Transaction transaction in block.setOfTransactions) {
+    for (Transaction transaction in block.setOfTransactions) {
       String senderID = transaction.operation.senderID;
       String receiverID = transaction.operation.receiverID;
       String robotID = transaction.operation.robotID;
@@ -132,7 +147,7 @@ class Blockchain {
       }
       // on first occurance in sender's "sent" map
       if (trState[senderID]![false]![robotID] == null) {
-        trState[senderID]![false]![robotID] = 1;
+        trState[senderID]![false]![robotID] = 0;
       }
       // incrementing counter
       trState[senderID]![false]![robotID] =
@@ -168,7 +183,7 @@ class Blockchain {
     // robot R to some other account D, we've run into a conflict, as
     // the number of occurances in "received" map is still equal to 1, while
     // the "sent" map has 3 of them => the difference = 2 => the conflict was
-    // spotted => throwing error
+    // spotted => return FALSE
     for (Map<bool, Map<String, int>> account in trState.values) {
       // key -> ID of the received robot. value -> number of times it was received
       // by the account across all transactions of the block
@@ -184,17 +199,28 @@ class Blockchain {
       );
 
       for (String robotID in allRobotIDsOfTransaction) {
-        int receivedCounter = receivedRobotsMap[robotID]!;
-        int sentCounter = sentRobotsMap[robotID]!;
+        int receivedCounter = 0, sentCounter = 0;
+        if (receivedRobotsMap[robotID] != null) {
+          receivedCounter = receivedRobotsMap[robotID]!;
+        }
+        if (sentRobotsMap[robotID] != null) {
+          sentCounter = sentRobotsMap[robotID]!;
+        }
         int difference = sentCounter - receivedCounter;
         if (difference.abs() > 1) {
-          throw ArgumentError(
-            "transactions conflict in operations with Robot(id: $robotID)",
-            block.setOfTransactions.toString(),
-          );
+          return {4: robotID};
         }
       }
     }
+
+    // all steps were completed normally => block is valid
+    // => adding it to blockHistory and executing its transactions
+    await blockHistory.addBlock(block);
+    for (Transaction transaction in block.setOfTransactions) {
+      Transaction.executeVerifiedTransaction(transaction);
+    }
+
+    return null;
   }
 
   /// Printing robotDatabase
@@ -211,6 +237,7 @@ class Blockchain {
       print("robotDatabase: ${await robotDatabase.robotDatabaseToString()}");
       print("blockHistory: ${await blockHistory.blockHistoryToString()}");
       print("txDatabase: ${await txDatabase.txDatabaseToString()}");
+      print("mempool: ${await mempool.mempoolToString()}");
       print("--------------------------------------------------------");
     }
   }
@@ -220,6 +247,7 @@ class Blockchain {
       "robotDatabase": await robotDatabase.robotDatabaseToString(),
       "blockHistory": await blockHistory.blockHistoryToString(),
       "txDatabase": await txDatabase.txDatabaseToString(),
+      "mempool": await mempool.mempoolToString(),
     };
     return mapBlockchain.toString();
   }
