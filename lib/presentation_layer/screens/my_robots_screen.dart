@@ -5,12 +5,13 @@ import 'package:baby_blockchain/domain_layer/blockchain.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
-import 'package:baby_blockchain/presentation_layer/widgets/empty_banner.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/empty_banners.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/loading_overlay.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/robot_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:motion_toast/motion_toast.dart';
 
 class MyRobotsScreen extends StatefulWidget {
   const MyRobotsScreen({Key? key}) : super(key: key);
@@ -39,7 +40,7 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
     super.initState();
   }
 
-  void createTestBot(BuildContext context) async {
+  void _createTestBot(BuildContext context) async {
     checkAndShowLoading(context, "Creating a random TestBot...");
 
     Robot randomRobot = await Robot.generateRandomRobot(
@@ -78,34 +79,34 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: BackgroundColor,
-      appBar: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
-          ? AppBar(
-              automaticallyImplyLeading: false,
-              backgroundColor: AccentColor,
-              centerTitle: true,
-              title: Text(
-                'BabyBlockchain',
-                style: GoogleFonts.fredokaOne(
-                  color: LightColor,
-                  fontSize: bigFontSize,
-                ),
-              ),
-              actions: [
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: AccentColor,
+        centerTitle: true,
+        title: Text(
+          "BabyBlockchain",
+          style: GoogleFonts.fredokaOne(
+            color: LightColor,
+            fontSize: bigFontSize,
+          ),
+        ),
+        actions: MediaQuery.of(context).size.width < mobileScreenMaxWidth
+            ? [
                 Padding(
                   padding: const EdgeInsets.only(right: 5),
                   child: IconButton(
                     tooltip: "Create a robot for testing",
                     onPressed: () {
-                      createTestBot(context);
+                      _createTestBot(context);
                     },
                     icon: const Icon(LineIcons.plus, size: 30),
                   ),
                 ),
-              ],
-            )
-          : null,
+              ]
+            : null,
+      ),
       body: robotsList.isEmpty
-          ? const EmptyBunner()
+          ? const NoOwnedRobotsBanner()
           : GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: MediaQuery.of(context).size.width ~/
@@ -118,23 +119,52 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
               ),
               itemCount: robotsList.length,
               itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.only(
-                    left: 0,
-                    right: getPadding(context),
-                    top: getPadding(context),
-                    bottom: 0,
-                  ),
-                  child: RobotCard(
-                    name: robotsList[index].robotName,
-                    isTestMode: robotsList[index].isTestMode,
-                    context: context,
+                return Align(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 0,
+                      right: getPadding(context),
+                      top: getPadding(context),
+                      bottom: 0,
+                    ),
+                    child: RobotCard(
+                      robotName: robotsList[index].robotName,
+                      isTestMode: robotsList[index].isTestMode,
+                      context: context,
+                      onNameChanged: (String newRobotName) async {
+                        checkAndShowLoading(
+                          context,
+                          'Renaming: "${robotsList[index].robotName}" to "$newRobotName"...',
+                        );
+                        await verifiedAccount!
+                            .changeRobotName(robotsList[index], newRobotName)
+                            .then((value) {
+                          setState(() {
+                            Navigator.pop(context);
+                          });
+
+                          MotionToast.success(
+                            title: const Padding(
+                              padding: EdgeInsets.only(bottom: 5),
+                              child: Text(
+                                "Robot's name was updated",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            description: Text(
+                              "New robot's " 'name is "$newRobotName"',
+                            ),
+                            toastDuration: const Duration(seconds: 5),
+                          ).show(context);
+                        });
+                      },
+                    ),
                   ),
                 );
               },
             ),
       floatingActionButton:
-          MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+          MediaQuery.of(context).size.width < mobileScreenMaxWidth
               ? null
               : Padding(
                   padding: const EdgeInsets.only(right: 10, bottom: 10),
@@ -147,7 +177,7 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
                         backgroundColor: AccentColor,
                         foregroundColor: LightColor,
                         onPressed: () async {
-                          createTestBot(context);
+                          _createTestBot(context);
                         },
                         child: const Icon(LineIcons.plus),
                       ),

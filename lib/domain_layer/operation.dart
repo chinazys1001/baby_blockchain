@@ -28,8 +28,6 @@ class Operation {
   // sender signs the operation.
   Uint8List senderSignature;
 
-  // TODO: check if operation is unique (see ref.)
-
   /// Creating operation with given sender account, receiver account and robotID.
   static Operation createOperation(
       Account sender, String receiverID, String robotID) {

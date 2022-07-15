@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:firedart/firedart.dart';
@@ -41,7 +40,7 @@ void main(List<String> args) async {
   final handler = Pipeline().addMiddleware(logRequests()).addHandler(_router);
 
   // For running in containers, we respect the PORT environment variable.
-  final port = int.parse(Platform.environment['PORT'] ?? '8081');
+  final port = int.parse(Platform.environment['PORT'] ?? '8080');
   final server = await serve(handler, ip, port);
   print('Server listening on port ${server.port}');
 
@@ -51,11 +50,11 @@ void main(List<String> args) async {
   blockchain = await Blockchain.initBlockchain();
   print("Blockchain initialized, ready to run");
 
-  periodicallyCheckMempool(periodMinutes: 1);
+  _periodicallyCheckMempool(periodMinutes: 5);
 }
 
-void periodicallyCheckMempool({int periodMinutes = 10}) {
-  Timer.periodic(Duration(seconds: 30 * periodMinutes), (timer) async {
+void _periodicallyCheckMempool({int periodMinutes = 10}) {
+  Timer.periodic(Duration(minutes: periodMinutes), (timer) async {
     while (true) {
       Set<Transaction> pendingTransactions =
           await blockchain!.mempool.getMempool();

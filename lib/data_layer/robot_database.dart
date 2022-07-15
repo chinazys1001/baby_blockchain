@@ -1,4 +1,6 @@
 import 'package:baby_blockchain/domain_layer/account.dart';
+import 'package:baby_blockchain/domain_layer/blockchain.dart';
+import 'package:baby_blockchain/domain_layer/operation.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -45,8 +47,10 @@ class RobotDatabase {
   }
 
   /// Returns [Set] of [Robot]s (`robots` field) from the document with given `accountID`.
+  /// Additonally checks for every robot if it is present in mempool. If so, it doesn't get included.
   Future<Set<Robot>> getRobots(String accountID) async {
     try {
+      // getting the robots corresponding to the account
       Set<Robot> robots = {};
       await FirebaseFirestore.instance
           .collection("robotDatabase")
@@ -56,6 +60,18 @@ class RobotDatabase {
         List<dynamic> robotsList = doc.get("robots");
         robots = Set<Robot>.from(Robot.fromList(robotsList));
       });
+
+      // excluding robots which are currently in mempool
+      List<String> mempoolRobotIDs = [];
+      await blockchain.mempool
+          .getAccountOperations(accountID)
+          .then((mempoolOperations) {
+        for (Operation operation in mempoolOperations) {
+          mempoolRobotIDs.add(operation.robotID);
+        }
+      });
+      robots.removeWhere((robot) => mempoolRobotIDs.contains(robot.robotID));
+
       return Set<Robot>.from(robots);
     } catch (e) {
       rethrow;

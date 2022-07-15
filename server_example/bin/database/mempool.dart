@@ -1,5 +1,6 @@
 import 'package:firedart/firedart.dart';
 
+import '../blockchain/operation.dart';
 import '../blockchain/transaction.dart';
 
 /// Mempool stores all pending transactions.
@@ -36,32 +37,68 @@ class Mempool {
   }
 
   Future<bool> transactionExists(Transaction transaction) async {
-    bool exists = false;
-    await Firestore.instance
-        .collection("mempool")
-        .document(
-          transaction.transactionID,
-        )
-        .exists
-        .then((value) => exists = value);
-    return exists;
+    try {
+      bool exists = false;
+      await Firestore.instance
+          .collection("mempool")
+          .document(
+            transaction.transactionID,
+          )
+          .exists
+          .then((value) => exists = value);
+      return exists;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// Returns set of all transactions stored currently in [Mempool].
   Future<Set<Transaction>> getMempool() async {
-    Set<Transaction> pendingTransactions = {};
-    await Firestore.instance.collection("mempool").get().then((collection) {
-      for (Document doc in collection) {
-        if (doc.id == "placeholder") continue;
-        Transaction transaction = Transaction.fromJSON({
-          "transactionID": doc.id,
-          "nonce": doc.map["nonce"],
-          "operation": doc.map["operation"],
-        });
-        pendingTransactions.add(transaction);
-      }
-    });
-    return pendingTransactions;
+    try {
+      Set<Transaction> pendingTransactions = {};
+      await Firestore.instance.collection("mempool").get().then((collection) {
+        for (Document doc in collection) {
+          if (doc.id == "placeholder") continue;
+          Transaction transaction = Transaction.fromJSON({
+            "transactionID": doc.id,
+            "nonce": doc.map["nonce"],
+            "operation": doc.map["operation"],
+          });
+          pendingTransactions.add(transaction);
+        }
+      });
+      return pendingTransactions;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Returns all operations from [Mempool], where `senderID` is
+  /// equal to the given `accountID`.
+  Future<List<Operation>> getAccountOperations(String accountID) async {
+    try {
+      List<Operation> operations = [];
+      await Firestore.instance
+          .collection("mempool")
+          .where(
+            "operation.senderID",
+            isEqualTo: accountID.replaceAll('/', '-'),
+          ) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .get()
+          .then((collection) {
+        for (var doc in collection) {
+          Map<String, dynamic> operationData = doc.map["operation"];
+          operationData["senderID"] =
+              operationData["senderID"].toString().replaceAll('/', '-');
+          operationData["receiverID"] =
+              operationData["receiverID"].toString().replaceAll('/', '-');
+          operations.add(Operation.fromJSON(operationData));
+        }
+      });
+      return operations;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// Testing-only

@@ -13,6 +13,8 @@ Color BackgroundColor = const Color(0xFFc8fefe).withOpacity(0.1);
 // ignore: non_constant_identifier_names
 Color IndicatorColor = Colors.yellow.shade700;
 // ignore: non_constant_identifier_names
+Color AdditionalIndicatorColor = Colors.lightBlue.shade100;
+// ignore: non_constant_identifier_names
 Color ShadowColor = Colors.blueGrey.shade50.withOpacity(0.5);
 // ignore: non_constant_identifier_names
 Color SplashColor = Colors.blueGrey.shade50;
@@ -25,7 +27,7 @@ const BorderRadius smallBorderRadius = BorderRadius.all(Radius.circular(7.0));
 const BorderRadius mediumBorderRadius = BorderRadius.all(Radius.circular(20.0));
 const BorderRadius bigBorderRadius = BorderRadius.all(Radius.circular(40.0));
 
-const double mobileScreenMaxWidthh = 600;
+const double mobileScreenMaxWidth = 600;
 
 List<String> randomRobotNames = const [
   "Demian",

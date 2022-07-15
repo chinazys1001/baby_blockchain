@@ -77,8 +77,9 @@ class Account {
     return true;
   }
 
-  /// Adds the given robot to the corresponding account in [RobotDatabase].
-  Future<void> addRobot(Robot robot) async {
+  /// Adds the given robot to the account.
+  /// If `updateDB` is false, account does not get updated in [RobotDatabase].
+  Future<void> addRobot(Robot robot, {bool updateDB = true}) async {
     // ensuring that the given robot doesn't belong to the account
     if (robots.contains(robot)) {
       throw ArgumentError(
@@ -88,7 +89,7 @@ class Account {
     }
     try {
       // adding a robot in robotDatabase
-      await blockchain.robotDatabase.addRobot(robot);
+      if (updateDB) await blockchain.robotDatabase.addRobot(robot);
       // updating current state
       robots.add(robot);
     } catch (e) {
@@ -96,8 +97,9 @@ class Account {
     }
   }
 
-  /// Removes the given robot from the corresponding account in [RobotDatabase].
-  Future<void> removeRobot(Robot robot) async {
+  /// Removes the given robot from the account.
+  /// If `updateDB` is false, account does not get updated in [RobotDatabase].
+  Future<void> removeRobot(Robot robot, {bool updateDB = true}) async {
     // ensuring that the given robot belongs to the account
     if (!robots.contains(robot)) {
       throw ArgumentError("The Robot is abscent in {robots}", robot.toString());
@@ -107,6 +109,31 @@ class Account {
       await blockchain.robotDatabase.removeRobot(robot);
       // updating current state
       robots.remove(robot);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Changes name of the given robot in [RobotDatabase].
+  Future<void> changeRobotName(Robot robot, String newRobotName) async {
+    // ensuring that the robot belongs to the account
+    if (!robots.contains(robot)) {
+      throw ArgumentError(
+        "The Robot is abscent in {robots} => cannot change its name",
+        robot.toString(),
+      );
+    }
+    try {
+      // temporary removing robot from robotDatabase and updating verifiedAccount state
+      await blockchain.robotDatabase.removeRobot(robot);
+      verifiedAccount!.robots.remove(robot);
+
+      // updating robot name
+      robot.robotName = newRobotName;
+
+      // adding the robot back with the new name and updating verifiedAccount state
+      await blockchain.robotDatabase.addRobot(robot);
+      verifiedAccount!.robots.add(robot);
     } catch (e) {
       rethrow;
     }
@@ -132,6 +159,16 @@ class Account {
       robotID,
     );
     return operation;
+  }
+
+  /// Returns all confirmed operations, which were performed by the account.
+  Future<List<Operation>> getPendingOperations() async {
+    return await blockchain.mempool.getAccountOperations(accountID);
+  }
+
+  /// Returns all confirmed operations, which were performed by the account.
+  Future<List<Operation>> getConfirmedOperations() async {
+    return await blockchain.txDatabase.getAccountOperations(accountID);
   }
 
   // equivalent of printBalance()

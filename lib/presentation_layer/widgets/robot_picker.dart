@@ -40,7 +40,7 @@ class _RobotPickerState extends State<RobotPicker> {
             color: AccentColor,
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+            height: MediaQuery.of(context).size.width < mobileScreenMaxWidth
                 ? 5
                 : 0,
           ),

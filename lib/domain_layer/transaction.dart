@@ -41,6 +41,11 @@ class Transaction {
     );
   }
 
+  /// Adds the given transaction in mempool.
+  static Future<void> addTransactionToMempool(Transaction transaction) async {
+    await blockchain.mempool.addTransaction(transaction);
+  }
+
   /// Executes the operation of the given `transaction`:
   /// - `robot` of the operation gets transferred from `sender` account to `buyer` account.
   /// - `robotDatabase` is updated with corresponding changes.

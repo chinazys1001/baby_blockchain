@@ -57,7 +57,7 @@ class KeyCard extends StatelessWidget {
         child: SizedBox(
           width: MediaQuery.of(context).size.width < 400
               ? 320
-              : MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+              : MediaQuery.of(context).size.width < mobileScreenMaxWidth
                   ? 380
                   : 440,
           child: Column(
@@ -81,8 +81,7 @@ class KeyCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: MediaQuery.of(context).size.width < 400
                       ? 12
-                      : MediaQuery.of(context).size.width <
-                              mobileScreenMaxWidthh
+                      : MediaQuery.of(context).size.width < mobileScreenMaxWidth
                           ? 14
                           : 16,
                   color: DarkColor.withOpacity(0.54),

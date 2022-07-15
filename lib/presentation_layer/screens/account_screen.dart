@@ -36,19 +36,19 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: BackgroundColor,
-      appBar: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
-          ? AppBar(
-              automaticallyImplyLeading: false,
-              backgroundColor: AccentColor,
-              centerTitle: true,
-              title: Text(
-                'BabyBlockchain',
-                style: GoogleFonts.fredokaOne(
-                  color: LightColor,
-                  fontSize: bigFontSize,
-                ),
-              ),
-              actions: [
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: AccentColor,
+        centerTitle: true,
+        title: Text(
+          'BabyBlockchain',
+          style: GoogleFonts.fredokaOne(
+            color: LightColor,
+            fontSize: bigFontSize,
+          ),
+        ),
+        actions: MediaQuery.of(context).size.width < mobileScreenMaxWidth
+            ? [
                 Padding(
                   padding: const EdgeInsets.only(right: 5),
                   child: IconButton(
@@ -65,9 +65,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     icon: const Icon(LineIcons.alternateSignOut, size: 30),
                   ),
                 ),
-              ],
-            )
-          : null,
+              ]
+            : null,
+      ),
       body: MediaQuery.of(context).size.width < 1000
           ? SingleChildScrollView(
               child: Column(
@@ -142,7 +142,7 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
             ),
       floatingActionButton:
-          MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+          MediaQuery.of(context).size.width < mobileScreenMaxWidth
               ? null
               : Padding(
                   padding: const EdgeInsets.only(right: 10, bottom: 10),

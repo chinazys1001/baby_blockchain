@@ -3,8 +3,11 @@ import 'package:baby_blockchain/domain_layer/blockchain.dart';
 import 'package:baby_blockchain/domain_layer/operation.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:baby_blockchain/domain_layer/transaction.dart';
+import 'package:baby_blockchain/presentation_layer/common_layout.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
+import 'package:baby_blockchain/presentation_layer/screens/pending_operations_screen.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/empty_banners.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/receiver_picker.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/robot_picker.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/loading_overlay.dart';
@@ -60,6 +63,7 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
 
       return;
     }
+
     bool receiverIsValid = true;
     await blockchain.robotDatabase.accountExists(receiverID).then((exists) {
       if (!exists) {
@@ -83,10 +87,10 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
     });
     if (!receiverIsValid) return;
 
-    Robot robot = verifiedAccount!.robots
+    Robot robotToBeSent = verifiedAccount!.robots
         .singleWhere((Robot robot) => robot.robotName == robotName);
 
-    if (receiverID == robot.ownerID && mounted) {
+    if (receiverID == robotToBeSent.ownerID && mounted) {
       MotionToast.error(
         title: const Padding(
           padding: EdgeInsets.only(bottom: 5),
@@ -107,100 +111,138 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
     if (mounted) checkAndShowLoading(context, "Verifying transaction...");
 
     Operation operation =
-        verifiedAccount!.createOperation(receiverID, robot.robotID);
+        verifiedAccount!.createOperation(receiverID, robotToBeSent.robotID);
 
     Transaction transaction = await Transaction.createTransaction(operation);
-    await blockchain.mempool
-        .addTransaction(transaction)
-        .then((value) => Navigator.pop(context));
 
-    // await http
-    //     .post(
-    //   Uri.parse("http://localhost:8080/transaction"),
-    //   body: transaction.toJSONString(),
-    // )
-    //     .then((response) {
-    //   print(response.body);
-    // Navigator.pop(context);
-    //});
+    await Transaction.addTransactionToMempool(transaction).then((value) {
+      // updating current state only
+      setState(() {
+        verifiedAccount!.removeRobot(robotToBeSent, updateDB: false);
+      });
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (_, a1, a2) => const CommonLayout(screenIndex: 3),
+        ),
+      );
+      MotionToast.success(
+        title: const Padding(
+          padding: EdgeInsets.only(bottom: 5),
+          child: Text(
+            "Robot was sent",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        description: Text(
+          "${robotToBeSent.robotName} is on the way to its new owner",
+        ),
+        toastDuration: const Duration(seconds: 5),
+      ).show(context);
+    });
   }
+
+  Widget _getConfirmButton() => MaterialButton(
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.all(20),
+        color: AccentColor,
+        elevation: 8,
+        onPressed: _onConfirmButtonPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18),
+              child: Text(
+                "Confirm",
+                style: TextStyle(
+                  fontSize: bigFontSize,
+                  color: LightColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: BackgroundColor,
-      appBar: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
-          ? AppBar(
-              automaticallyImplyLeading: false,
-              backgroundColor: AccentColor,
-              centerTitle: true,
-              title: Text(
-                'BabyBlockchain',
-                style: GoogleFonts.fredokaOne(
-                  color: LightColor,
-                  fontSize: bigFontSize,
-                ),
-              ),
-            )
-          : null,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RobotPicker(controller: robotPickerController),
-                ],
-              ),
-              const SizedBox(width: 15),
-              const Icon(
-                LineIcons.alternateLongArrowRight,
-                size: 120,
-                color: Colors.blueGrey,
-              ),
-              const SizedBox(width: 15),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ReceiverPicker(
-                    controller: receiverPickerController,
-                  ),
-                ],
-              ),
-            ],
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: AccentColor,
+        centerTitle: true,
+        title: Text(
+          'BabyBlockchain',
+          style: GoogleFonts.fredokaOne(
+            color: LightColor,
+            fontSize: bigFontSize,
           ),
-          const SizedBox(height: 20),
-          MaterialButton(
-            shape: const StadiumBorder(),
-            padding: EdgeInsets.all(
-                MediaQuery.of(context).size.width < mobileScreenMaxWidthh
-                    ? 15
-                    : 20),
-            color: AccentColor,
-            elevation: 8,
-            onPressed: _onConfirmButtonPressed,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
-                  child: Text(
-                    "Confirm",
-                    style: TextStyle(
-                      fontSize: bigFontSize,
-                      color: LightColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
+      body: verifiedAccount!.robots.isEmpty
+          ? const NoRobotsToTradeBanner()
+          : MediaQuery.of(context).size.width < 900
+              ? ListView(
+                  shrinkWrap: true,
+                  children: [
+                    const SizedBox(height: 30),
+                    Align(
+                      child: RobotPicker(controller: robotPickerController),
+                    ),
+                    const SizedBox(height: 5),
+                    const Icon(
+                      LineIcons.alternateLongArrowDown,
+                      size: 120,
+                      color: Colors.blueGrey,
+                    ),
+                    const SizedBox(height: 5),
+                    Align(
+                      child: ReceiverPicker(
+                        controller: receiverPickerController,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Align(
+                      child: _getConfirmButton(),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 15),
+                        Align(
+                          child: RobotPicker(controller: robotPickerController),
+                        ),
+                        const SizedBox(width: 15),
+                        const Icon(
+                          LineIcons.alternateLongArrowRight,
+                          size: 120,
+                          color: Colors.blueGrey,
+                        ),
+                        const SizedBox(width: 15),
+                        Align(
+                          child: ReceiverPicker(
+                            controller: receiverPickerController,
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _getConfirmButton(),
+                    const SizedBox(height: 20),
+                  ],
+                ),
     );
   }
 }

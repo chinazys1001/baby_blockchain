@@ -40,7 +40,8 @@ dependencies:
   glass: ^1.0.1+1
   motion_toast: ^2.2.1
   flutter_animated_dialog: ^2.0.1
-
+  horizontal_data_table: ^4.1.1+1
+  
   # other
   url_launcher: ^6.1.4
   http: ^0.13.4

@@ -1,3 +1,4 @@
+import 'package:baby_blockchain/domain_layer/operation.dart';
 import 'package:baby_blockchain/domain_layer/transaction.dart'
     as tr; // Transaction class is defined both here
 import 'package:cloud_firestore/cloud_firestore.dart'; // and here. Adding prefix "as tr" to manage conflicts.
@@ -24,16 +25,48 @@ class TXDatabase {
   }
 
   Future<bool> transactionExists(tr.Transaction transaction) async {
-    bool exists = false;
-    await FirebaseFirestore.instance
-        .collection("txDatabase")
-        .where(
-          FieldPath.documentId,
-          isEqualTo: transaction.transactionID,
-        )
-        .get()
-        .then((collection) => exists = collection.docs.isEmpty);
-    return exists;
+    try {
+      bool exists = false;
+      await FirebaseFirestore.instance
+          .collection("txDatabase")
+          .where(
+            FieldPath.documentId,
+            isEqualTo: transaction.transactionID,
+          )
+          .get()
+          .then((collection) => exists = collection.docs.isEmpty);
+      return exists;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Returns all operations from [TXDatabase], where `senderID` is
+  /// equal to the given `accountID`.
+  Future<List<Operation>> getAccountOperations(String accountID) async {
+    try {
+      List<Operation> operations = [];
+      await FirebaseFirestore.instance
+          .collection("txDatabase")
+          .where(
+            "operation.senderID",
+            isEqualTo: accountID.replaceAll('/', '-'),
+          ) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .get()
+          .then((collection) {
+        for (var doc in collection.docs) {
+          Map<String, dynamic> operationData = doc.get("operation");
+          operationData["senderID"] =
+              operationData["senderID"].toString().replaceAll('/', '-');
+          operationData["receiverID"] =
+              operationData["receiverID"].toString().replaceAll('/', '-');
+          operations.add(Operation.fromJSON(operationData));
+        }
+      });
+      return operations;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// Testing-only

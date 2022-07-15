@@ -75,8 +75,9 @@ class Account {
     return true;
   }
 
-  /// Adds the given robot to the corresponding account in [RobotDatabase].
-  Future<void> addRobot(Robot robot) async {
+  /// Adds the given robot to the account.
+  /// If `updateDB` is false, account does not get updated in [RobotDatabase].
+  Future<void> addRobot(Robot robot, {bool updateDB = true}) async {
     // ensuring that the given robot doesn't belong to the account
     if (robots.contains(robot)) {
       throw ArgumentError(
@@ -86,7 +87,7 @@ class Account {
     }
     try {
       // adding a robot in robotDatabase
-      await blockchain!.robotDatabase.addRobot(robot);
+      if (updateDB) await blockchain!.robotDatabase.addRobot(robot);
       // updating current state
       robots.add(robot);
     } catch (e) {
@@ -94,15 +95,16 @@ class Account {
     }
   }
 
-  /// Removes the given robot from the corresponding account in [RobotDatabase].
-  Future<void> removeRobot(Robot robot) async {
+  /// Removes the given robot from the account.
+  /// If `updateDB` is false, account does not get updated in [RobotDatabase].
+  Future<void> removeRobot(Robot robot, {bool updateDB = true}) async {
     // ensuring that the given robot belongs to the account
     if (!robots.contains(robot)) {
       throw ArgumentError("The Robot is abscent in {robots}", robot.toString());
     }
     try {
       // removing a robot from robotDatabase
-      await blockchain!.robotDatabase.removeRobot(robot);
+      if (updateDB) await blockchain!.robotDatabase.removeRobot(robot);
       // updating current state
       robots.remove(robot);
     } catch (e) {
@@ -130,6 +132,16 @@ class Account {
       robotID,
     );
     return operation;
+  }
+
+  /// Returns all confirmed operations, which were performed by the account.
+  Future<List<Operation>> getPendingOperations() async {
+    return await blockchain!.mempool.getAccountOperations(accountID);
+  }
+
+  /// Returns all confirmed operations, which were performed by the account.
+  Future<List<Operation>> getConfirmedOperations() async {
+    return await blockchain!.txDatabase.getAccountOperations(accountID);
   }
 
   // equivalent of printBalance()

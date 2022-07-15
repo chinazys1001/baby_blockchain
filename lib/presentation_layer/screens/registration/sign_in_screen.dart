@@ -36,19 +36,19 @@ class _SignInScreenState extends State<SignInScreen> {
     super.initState();
   }
 
-  Widget getBanner() => Column(
+  Widget _getBanner() => Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const LoadingIndicator(),
           const SizedBox(height: 5),
           Text(
-            "Release date: 14.07.2022",
+            "Release date: 15.07.2022",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: bigFontSize,
               color: LightColor,
               fontWeight:
-                  MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                  MediaQuery.of(context).size.width < mobileScreenMaxWidth
                       ? FontWeight.bold
                       : null,
             ),
@@ -61,7 +61,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 fontSize: bigFontSize,
                 color: LightColor,
                 fontWeight:
-                    MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                    MediaQuery.of(context).size.width < mobileScreenMaxWidth
                         ? FontWeight.bold
                         : null,
               ),
@@ -90,12 +90,12 @@ class _SignInScreenState extends State<SignInScreen> {
 
   TextEditingController keyTextController = TextEditingController();
   FocusNode keyFocusNode = FocusNode();
-  Widget getLoginForm() => Padding(
+  Widget _getLoginForm() => Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+          horizontal: MediaQuery.of(context).size.width < mobileScreenMaxWidth
               ? (MediaQuery.of(context).size.width - 320) / 2
               : (MediaQuery.of(context).size.width - 390) / 2,
-          vertical: MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+          vertical: MediaQuery.of(context).size.width < mobileScreenMaxWidth
               ? (MediaQuery.of(context).size.height - 285) / 2
               : (MediaQuery.of(context).size.height - 270) / 2,
         ),
@@ -137,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     },
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (value) async {
-                      await tryToSignIn();
+                      await _tryToSignIn();
                     },
                     style: const TextStyle(
                       color: LightColor,
@@ -171,12 +171,12 @@ class _SignInScreenState extends State<SignInScreen> {
                 MaterialButton(
                   shape: const StadiumBorder(),
                   padding: EdgeInsets.all(
-                      MediaQuery.of(context).size.width < mobileScreenMaxWidthh
+                      MediaQuery.of(context).size.width < mobileScreenMaxWidth
                           ? 15
                           : 20),
                   color: ShadowColor,
                   onPressed: () async {
-                    await tryToSignIn();
+                    await _tryToSignIn();
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -245,7 +245,7 @@ class _SignInScreenState extends State<SignInScreen> {
       );
 
   bool verificationInProgress = false;
-  Future<void> tryToSignIn() async {
+  Future<void> _tryToSignIn() async {
     if (verificationInProgress) return;
     setState(() {
       verificationInProgress = true;
@@ -318,7 +318,7 @@ class _SignInScreenState extends State<SignInScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          child: kReleaseMode ? getBanner() : getLoginForm(),
+          child: kReleaseMode ? _getBanner() : _getLoginForm(),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:firedart/firedart.dart';
 
+import '../blockchain/operation.dart';
 import '../blockchain/transaction.dart'; // and here. Adding prefix "as tr" to manage conflicts.
 
 /// Transactions Database
@@ -24,13 +25,45 @@ class TXDatabase {
   }
 
   Future<bool> transactionExists(Transaction transaction) async {
-    bool exists = false;
-    await Firestore.instance
-        .collection("txDatabase")
-        .document(transaction.transactionID)
-        .exists
-        .then((value) => exists = value);
-    return exists;
+    try {
+      bool exists = false;
+      await Firestore.instance
+          .collection("txDatabase")
+          .document(transaction.transactionID)
+          .exists
+          .then((value) => exists = value);
+      return exists;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Returns all operations from [TXDatabase], where `senderID` is
+  /// equal to the given `accountID`.
+  Future<List<Operation>> getAccountOperations(String accountID) async {
+    try {
+      List<Operation> operations = [];
+      await Firestore.instance
+          .collection("txDatabase")
+          .where(
+            "operation.senderID",
+            isEqualTo: accountID.replaceAll('/', '-'),
+          ) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .get()
+          .then((collection) {
+        for (var doc in collection) {
+          Map<String, dynamic> operationData = doc.map["operation"];
+          operationData["senderID"] =
+              operationData["senderID"].toString().replaceAll('/', '-');
+          operationData["receiverID"] =
+              operationData["receiverID"].toString().replaceAll('/', '-');
+          operations.add(Operation.fromJSON(operationData));
+        }
+      });
+      return operations;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// Testing-only
