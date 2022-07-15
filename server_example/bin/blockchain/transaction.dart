@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../database/robot_database.dart';
+import 'account.dart';
 import 'blockchain.dart';
 import 'hash.dart';
 import 'operation.dart';
@@ -48,8 +49,15 @@ class Transaction {
     );
   }
 
-  /// Adds the given transaction in mempool.
+  /// Adds the given transaction in mempool and increments sender's nonce.
   static Future<void> addTransactionToMempool(Transaction transaction) async {
+    // incrementing nonce of the sender account
+    // on every attempt to add transaction to mempool
+    await blockchain!.robotDatabase.incrementNonce(
+      transaction.operation.senderID,
+    );
+
+    // adding the given transaction to mempool
     await blockchain!.mempool.addTransaction(transaction);
   }
 
@@ -61,7 +69,6 @@ class Transaction {
   static Future<void> executeVerifiedTransaction(
     Transaction transaction,
   ) async {
-    print("--------------------");
     String robotID = transaction.operation.robotID;
     String senderID = transaction.operation.senderID;
     String receiverID = transaction.operation.receiverID;
@@ -79,15 +86,12 @@ class Transaction {
     robot.ownerID = receiverID;
     // updating robot's name if needed
     robot.robotName = await Robot.getUniqueName(robot.robotName, robot.ownerID);
-    print(robot.robotID);
+
     // adding the robot to the set of owner's robots
     await blockchain!.robotDatabase.addRobot(robot);
 
     // adding the transaction to txDatabase
     await blockchain!.txDatabase.addTransaction(transaction);
-
-    // incrementing sender's nonce
-    await blockchain!.robotDatabase.incrementNonce(senderID);
   }
 
   /// Testing-only

@@ -17,22 +17,8 @@ class ConfirmedOperationsScreen extends StatefulWidget {
 }
 
 class _ConfirmedOperationsScreenState extends State<ConfirmedOperationsScreen> {
-  bool dataWasFetched = false;
+  List<Operation> operations = [];
   List<String> robotIDs = [], receiverIDs = [];
-
-  Future<void> _getOperations() async {
-    List<Operation> operations =
-        await verifiedAccount!.getConfirmedOperations();
-
-    for (Operation operation in operations) {
-      robotIDs.add(operation.robotID);
-      receiverIDs.add(operation.receiverID);
-    }
-
-    setState(() {
-      dataWasFetched = true;
-    });
-  }
 
   @override
   void initState() {
@@ -45,10 +31,7 @@ class _ConfirmedOperationsScreenState extends State<ConfirmedOperationsScreen> {
           ),
         );
       });
-    } else {
-      _getOperations();
     }
-
     super.initState();
   }
 
@@ -68,14 +51,24 @@ class _ConfirmedOperationsScreenState extends State<ConfirmedOperationsScreen> {
           ),
         ),
       ),
-      body: !dataWasFetched
-          ? const LoadingIndicator()
-          : robotIDs.isEmpty
-              ? const NoOperationsBanner()
-              : OperationsTable(
-                  robotIDs: robotIDs,
-                  receiverIDs: receiverIDs,
-                ),
+      body: StreamBuilder(
+        stream: verifiedAccount!.getConfirmedOperationsStream(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (!snapshot.hasData) return const LoadingIndicator();
+
+          operations = snapshot.data;
+
+          for (Operation operation in operations) {
+            robotIDs.add(operation.robotID);
+            receiverIDs.add(operation.receiverID);
+          }
+
+          return OperationsTable(
+            robotIDs: robotIDs,
+            receiverIDs: receiverIDs,
+          );
+        },
+      ),
     );
   }
 }

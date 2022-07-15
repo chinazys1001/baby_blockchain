@@ -41,8 +41,14 @@ class Transaction {
     );
   }
 
-  /// Adds the given transaction in mempool.
+  /// Adds the given transaction in mempool and increments sender's nonce.
   static Future<void> addTransactionToMempool(Transaction transaction) async {
+    // incrementing nonce of the sender account
+    // on every attempt to add transaction to mempool
+    await blockchain.robotDatabase.incrementNonce(
+      transaction.operation.senderID,
+    );
+
     await blockchain.mempool.addTransaction(transaction);
   }
 

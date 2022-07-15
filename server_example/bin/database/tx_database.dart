@@ -24,14 +24,21 @@ class TXDatabase {
     }
   }
 
+  /// Returns `true` if the transaction is present in [TXDatabase].
   Future<bool> transactionExists(Transaction transaction) async {
     try {
       bool exists = false;
       await Firestore.instance
           .collection("txDatabase")
-          .document(transaction.transactionID)
-          .exists
-          .then((value) => exists = value);
+          .get()
+          .then((collection) {
+        for (Document document in collection) {
+          if (document.id == transaction.transactionID) {
+            exists = true;
+            break;
+          }
+        }
+      });
       return exists;
     } catch (e) {
       rethrow;

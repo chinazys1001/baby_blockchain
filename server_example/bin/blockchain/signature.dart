@@ -33,7 +33,6 @@ class Signature extends KeyPair {
     String hashedData = Hash.toSHA256(data);
     // splitting the hash value into bytes
     Uint8List hashedDataBytes = utf8.encode(hashedData) as Uint8List;
-
     // verifying
     ECPublicKey publicKey = ECPublicKey.fromString(publicKeyString);
     bool isValid = publicKey.verifySHA256Signature(hashedDataBytes, signature);

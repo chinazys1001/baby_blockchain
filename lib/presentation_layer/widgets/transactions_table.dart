@@ -72,14 +72,19 @@ class _OperationsTableState extends State<OperationsTable> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          height: 52,
-          alignment: Alignment.center,
-          child: Text(
-            widget.robotIDs[index],
-            style: const TextStyle(
-              fontSize: smallFontSize,
-              color: DarkColor,
+        SizedBox(
+          width: MediaQuery.of(context).size.width / 2,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Text(
+              widget.robotIDs[index],
+              style: const TextStyle(
+                fontSize: smallFontSize,
+                color: DarkColor,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 10,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
@@ -91,14 +96,19 @@ class _OperationsTableState extends State<OperationsTable> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Container(
-          height: 52,
-          alignment: Alignment.center,
-          child: Text(
-            widget.receiverIDs[index],
-            style: const TextStyle(
-              fontSize: smallFontSize,
-              color: DarkColor,
+        SizedBox(
+          width: MediaQuery.of(context).size.width / 2,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Text(
+              widget.receiverIDs[index],
+              style: const TextStyle(
+                fontSize: smallFontSize,
+                color: DarkColor,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 10,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),

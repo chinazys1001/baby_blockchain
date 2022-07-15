@@ -54,58 +54,74 @@ void main(List<String> args) async {
 }
 
 void _periodicallyCheckMempool({int periodMinutes = 10}) {
-  Timer.periodic(Duration(minutes: periodMinutes), (timer) async {
-    while (true) {
-      Set<Transaction> pendingTransactions =
-          await blockchain!.mempool.getMempool();
-      if (pendingTransactions.isEmpty) return;
+  print("starting periodically checking mempool...");
+  try {
+    Timer.periodic(Duration(minutes: periodMinutes), (timer) async {
+      print("entering super-loop...");
+      while (true) {
+        print("getting mempool...");
+        Set<Transaction> pendingTransactions =
+            await blockchain!.mempool.getMempool();
+        if (pendingTransactions.isEmpty) {
+          print("mempool is empty. leaving...");
+          return;
+        }
+        print("creating block...");
+        Block newBlock = await Block.createBlock(pendingTransactions);
 
-      Block newBlock = await Block.createBlock(pendingTransactions);
+        print("validating block...");
+        Map<int, dynamic>? error = await blockchain!.validateBlock(newBlock);
 
-      Map<int, dynamic>? error = await blockchain!.validateBlock(newBlock);
+        // the block is valid
+        if (error == null) {
+          print("clearing up mempool...");
+          // removing block transactions from mempool
+          for (Transaction transaction in pendingTransactions) {
+            await blockchain!.mempool.removeTransaction(transaction);
+          }
 
-      // the block is valid
-      if (error == null) {
-        // removing block transactions from mempool
-        for (Transaction transaction in pendingTransactions) {
-          await blockchain!.mempool.removeTransaction(transaction);
+          print("block was successfully validated");
+          return;
         }
 
-        print("block was successfully validated");
-        return;
-      }
+        // some database sync issue. should be fixed on next run automatically
+        if (error.containsKey(1)) {
+          print("prevHash != ID of the last block (1)");
+        }
 
-      // some database sync issue. should be fixed on next run automatically
-      if (error.containsKey(1)) {
-        print("prevHash != ID of the last block");
-      }
+        // some invalid transaction
+        if (error.containsKey(2) || error.containsKey(3)) {
+          Transaction invalidTransaction = error.values.first;
+          if (error.containsKey(2)) {
+            print("invalid transaction (2): ${invalidTransaction.toString()}");
+          }
+          if (error.containsKey(3)) {
+            print("invalid transaction (3): ${invalidTransaction.toString()}");
+          }
+          // removing it
+          await blockchain!.mempool.removeTransaction(invalidTransaction);
+        }
 
-      // some invalid transaction
-      if (error.containsKey(2) || error.containsKey(3)) {
-        Transaction invalidTransaction = error.values.first;
-        print("invalid transaction: ${invalidTransaction.toString()}");
+        // conflicting transactions with some robot
+        if (error.containsKey(4)) {
+          String robotID = error.values.first;
+          print("conflicting transactions with robot (4): ID = $robotID");
 
-        // removing it
-        await blockchain!.mempool.removeTransaction(invalidTransaction);
-      }
+          List<Transaction> conflictingTransactions = [];
+          for (Transaction transaction in pendingTransactions) {
+            if (transaction.operation.robotID == robotID) {
+              conflictingTransactions.add(transaction);
+            }
+          }
 
-      // conflicting transactions with some robot
-      if (error.containsKey(4)) {
-        String robotID = error.values.first;
-        print("conflicting transactions with robot: ID = $robotID");
-
-        List<Transaction> conflictingTransactions = [];
-        for (Transaction transaction in pendingTransactions) {
-          if (transaction.operation.robotID == robotID) {
-            conflictingTransactions.add(transaction);
+          // removing all conflicting transactions
+          for (Transaction transaction in conflictingTransactions) {
+            await blockchain!.mempool.removeTransaction(transaction);
           }
         }
-
-        // removing all conflicting transactions
-        for (Transaction transaction in conflictingTransactions) {
-          await blockchain!.mempool.removeTransaction(transaction);
-        }
       }
-    }
-  });
+    });
+  } catch (e) {
+    print(e.toString());
+  }
 }

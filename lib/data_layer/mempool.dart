@@ -36,6 +36,7 @@ class Mempool {
     }
   }
 
+  /// Returns `true` if the transaction in present in [Mempool].
   Future<bool> transactionExists(tr.Transaction transaction) async {
     try {
       bool exists = false;
@@ -101,6 +102,34 @@ class Mempool {
         }
       });
       return operations;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Returns stream of operations from [Mempool], where `senderID` is
+  /// equal to the given `accountID`.
+  Stream<List<Operation>> getAccountOperationsStream(String accountID) {
+    try {
+      return FirebaseFirestore.instance
+          .collection("mempool")
+          .where(
+            "operation.senderID",
+            isEqualTo: accountID.replaceAll('/', '-'),
+          ) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map(
+          (doc) {
+            Map<String, dynamic> operationData = doc.get("operation");
+            operationData["senderID"] =
+                operationData["senderID"].toString().replaceAll('/', '-');
+            operationData["receiverID"] =
+                operationData["receiverID"].toString().replaceAll('/', '-');
+            return Operation.fromJSON(operationData);
+          },
+        ).toList();
+      });
     } catch (e) {
       rethrow;
     }

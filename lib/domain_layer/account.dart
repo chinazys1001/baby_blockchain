@@ -65,8 +65,9 @@ class Account {
         await blockchain.robotDatabase.accountExists(accountID);
     if (!accountIsValid) return false; // returning null if not
 
-    // getting robots from robotDatabase
-    Set<Robot> robots = await blockchain.robotDatabase.getRobots(accountID);
+    // getting robots from robotDatabase. robots from mempool are not included
+    Set<Robot> robots = await blockchain.robotDatabase
+        .getRobots(accountID, includeMempool: false);
 
     verifiedAccount = Account(
       accountID: accountID,
@@ -75,6 +76,12 @@ class Account {
     );
 
     return true;
+  }
+
+  /// Returns `true` if the account with given ID already exists in `robotDatabase`.
+  static Future<bool> exists(String accountID) async {
+    bool exists = await blockchain.robotDatabase.accountExists(accountID);
+    return exists;
   }
 
   /// Adds the given robot to the account.
@@ -106,7 +113,7 @@ class Account {
     }
     try {
       // removing a robot from robotDatabase
-      await blockchain.robotDatabase.removeRobot(robot);
+      if (updateDB) await blockchain.robotDatabase.removeRobot(robot);
       // updating current state
       robots.remove(robot);
     } catch (e) {
@@ -169,6 +176,16 @@ class Account {
   /// Returns all confirmed operations, which were performed by the account.
   Future<List<Operation>> getConfirmedOperations() async {
     return await blockchain.txDatabase.getAccountOperations(accountID);
+  }
+
+  /// Returns stream of pending operations, which were performed by the account.
+  Stream<List<Operation>> getPendingOperationsStream() {
+    return blockchain.mempool.getAccountOperationsStream(accountID);
+  }
+
+  /// Returns stream of sconfirmed operations, which were performed by the account.
+  Stream<List<Operation>> getConfirmedOperationsStream() {
+    return blockchain.txDatabase.getAccountOperationsStream(accountID);
   }
 
   // equivalent of printBalance()

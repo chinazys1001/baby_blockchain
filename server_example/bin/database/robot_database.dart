@@ -34,10 +34,14 @@ class RobotDatabase {
       bool exists = false;
       await Firestore.instance
           .collection("robotDatabase")
-          .document(accountID.replaceAll('/', '-'))
-          .exists
-          .then((value) {
-        exists = value;
+          .get()
+          .then((collection) {
+        for (Document document in collection) {
+          if (document.id.replaceAll('-', '/') == accountID) {
+            exists = true;
+            break;
+          }
+        }
       });
       return exists;
     } catch (e) {
@@ -46,8 +50,12 @@ class RobotDatabase {
   }
 
   /// Returns [Set] of [Robot]s (`robots` field) from the document with given `accountID`.
-  /// Additonally checks for every robot if it is present in mempool. If so, it doesn't get included.
-  Future<Set<Robot>> getRobots(String accountID) async {
+  /// If `includeMempool` is set to False, checks for every robot if it is present in mempool.
+  /// If so, it doesn't get included.
+  Future<Set<Robot>> getRobots(
+    String accountID, {
+    bool includeMempool = true,
+  }) async {
     try {
       Set<Robot> robots = {};
 
@@ -61,16 +69,18 @@ class RobotDatabase {
         robots = Set<Robot>.from(Robot.fromList(robotsList));
       });
 
-      // excluding robots which are currently in mempool
-      List<String> mempoolRobotIDs = [];
-      await blockchain!.mempool
-          .getAccountOperations(accountID)
-          .then((mempoolOperations) {
-        for (Operation operation in mempoolOperations) {
-          mempoolRobotIDs.add(operation.robotID);
-        }
-      });
-      robots.removeWhere((robot) => mempoolRobotIDs.contains(robot.robotID));
+      if (!includeMempool) {
+        // excluding robots which are currently in mempool
+        List<String> mempoolRobotIDs = [];
+        await blockchain!.mempool
+            .getAccountOperations(accountID)
+            .then((mempoolOperations) {
+          for (Operation operation in mempoolOperations) {
+            mempoolRobotIDs.add(operation.robotID);
+          }
+        });
+        robots.removeWhere((robot) => mempoolRobotIDs.contains(robot.robotID));
+      }
 
       return Set<Robot>.from(robots);
     } catch (e) {
@@ -148,9 +158,10 @@ class RobotDatabase {
           .document(robot.ownerID.replaceAll('/', '-'))
           .get()
           .then((doc) => curRobots = List.from(doc.map["robots"]));
+
       curRobots
           .removeWhere((robotData) => robotData["robotID"] == robot.robotID);
-      // adding robot to robotDatabase
+
       await Firestore.instance
           .collection("robotDatabase")
           .document(robot.ownerID.replaceAll('/',

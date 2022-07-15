@@ -65,7 +65,7 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
     }
 
     bool receiverIsValid = true;
-    await blockchain.robotDatabase.accountExists(receiverID).then((exists) {
+    await Account.exists(receiverID).then((exists) {
       if (!exists) {
         receiverIsValid = false;
         MotionToast.error(

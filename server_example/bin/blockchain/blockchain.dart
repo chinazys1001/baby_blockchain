@@ -214,9 +214,7 @@ class Blockchain {
     // => adding it to blockHistory and executing its transactions
     await blockHistory.addBlock(block);
     for (Transaction transaction in block.setOfTransactions) {
-      print("--------------------");
-
-      Transaction.executeVerifiedTransaction(transaction);
+      await Transaction.executeVerifiedTransaction(transaction);
     }
 
     return null;

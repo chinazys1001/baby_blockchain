@@ -36,16 +36,18 @@ class Mempool {
     }
   }
 
+  /// Returns `true` if the transaction is present in [Mempool].
   Future<bool> transactionExists(Transaction transaction) async {
     try {
       bool exists = false;
-      await Firestore.instance
-          .collection("mempool")
-          .document(
-            transaction.transactionID,
-          )
-          .exists
-          .then((value) => exists = value);
+      await Firestore.instance.collection("mempool").get().then((collection) {
+        for (Document document in collection) {
+          if (document.id == transaction.transactionID) {
+            exists = true;
+            break;
+          }
+        }
+      });
       return exists;
     } catch (e) {
       rethrow;

@@ -63,8 +63,11 @@ class Account {
         await blockchain!.robotDatabase.accountExists(accountID);
     if (!accountIsValid) return false; // returning null if not
 
-    // getting robots from robotDatabase
-    Set<Robot> robots = await blockchain!.robotDatabase.getRobots(accountID);
+    // getting robots from robotDatabase. robots from mempool are not included
+    Set<Robot> robots = await blockchain!.robotDatabase.getRobots(
+      accountID,
+      includeMempool: false,
+    );
 
     verifiedAccount = Account(
       accountID: accountID,
