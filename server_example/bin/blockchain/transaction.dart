@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import '../database/robot_database.dart';
-import 'account.dart';
 import 'blockchain.dart';
 import 'hash.dart';
 import 'operation.dart';

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:http/http.dart' as http;
 
 class RobotCard extends StatefulWidget {
   const RobotCard({
@@ -107,7 +108,7 @@ class _RobotCardState extends State<RobotCard> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: CustomDropdown.search(
                       textAlign: TextAlign.center,
-                      hintText: 'Robot to be sent...',
+                      hintText: 'New robot name...',
                       items: availableRobotNames,
                       searchHint: 'Search...',
                       onNoResult: 'Robot not found :(',
@@ -219,8 +220,15 @@ class _RobotCardState extends State<RobotCard> {
       highlightColor: AccentColor.withOpacity(0.5),
       borderRadius: mediumBorderRadius,
       onTap: () async {
-        robotNameController.text = widget.robotName;
-        await checkAndShowNamePickerDialog(context, robotNameController);
+        await http
+            .post(
+              Uri.parse(
+                'https://server-node-uuts3zsfqa-lm.a.run.app/transaction',
+              ),
+            )
+            .then((value) => print(value.body));
+        // robotNameController.text = widget.robotName;
+        // await checkAndShowNamePickerDialog(context, robotNameController);
       },
       child: SizedBox(
         width: 300,
