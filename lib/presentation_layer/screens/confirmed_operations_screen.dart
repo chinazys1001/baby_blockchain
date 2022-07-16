@@ -41,12 +41,12 @@ class _ConfirmedOperationsScreenState extends State<ConfirmedOperationsScreen> {
       backgroundColor: BackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: AccentColor,
+        backgroundColor: PrimaryColor,
         centerTitle: true,
         title: Text(
           'BabyBlockchain',
           style: GoogleFonts.fredokaOne(
-            color: LightColor,
+            color: PrimaryLightColor,
             fontSize: bigFontSize,
           ),
         ),
@@ -55,6 +55,8 @@ class _ConfirmedOperationsScreenState extends State<ConfirmedOperationsScreen> {
         stream: verifiedAccount!.getConfirmedOperationsStream(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (!snapshot.hasData) return const LoadingIndicator();
+          robotIDs.clear();
+          receiverIDs.clear();
 
           operations = snapshot.data;
 
@@ -63,6 +65,7 @@ class _ConfirmedOperationsScreenState extends State<ConfirmedOperationsScreen> {
             receiverIDs.add(operation.receiverID);
           }
 
+          if (operations.isEmpty) return const NoOperationsBanner();
           return OperationsTable(
             robotIDs: robotIDs,
             receiverIDs: receiverIDs,

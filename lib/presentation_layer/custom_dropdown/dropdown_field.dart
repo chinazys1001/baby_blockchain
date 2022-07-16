@@ -20,6 +20,7 @@ class _DropDownField extends StatefulWidget {
   final Color? fillColor;
   final TextAlign textAlign;
   final bool isOutlineBorder;
+  final EdgeInsets? contentPadding;
 
   const _DropDownField({
     Key? key,
@@ -38,6 +39,7 @@ class _DropDownField extends StatefulWidget {
     this.fillColor,
     this.textAlign = TextAlign.start,
     this.isOutlineBorder = true,
+    this.contentPadding,
   }) : super(key: key);
 
   @override
@@ -112,6 +114,7 @@ class _DropDownFieldState extends State<_DropDownField> {
       style: widget.style,
       textAlign: widget.textAlign,
       decoration: InputDecoration(
+        contentPadding: widget.contentPadding,
         suffixIcon: widget.suffixIcon,
         hintText: widget.hintText,
         hintStyle: widget.hintStyle,

@@ -34,6 +34,7 @@ class CustomDropdown extends StatefulWidget {
   final String searchHint;
   final TextAlign textAlign;
   final bool isOutlineBorder;
+  final EdgeInsets? contentPadding;
 
   CustomDropdown({
     Key? key,
@@ -57,6 +58,7 @@ class CustomDropdown extends StatefulWidget {
     this.searchHint = 'Search',
     this.textAlign = TextAlign.start,
     this.isOutlineBorder = true,
+    this.contentPadding,
   })  : assert(items.isNotEmpty, 'Items list must contain at least one item.'),
         assert(
           controller.text.isEmpty || items.contains(controller.text),
@@ -89,6 +91,7 @@ class CustomDropdown extends StatefulWidget {
     this.searchHint = 'Search',
     this.textAlign = TextAlign.start,
     this.isOutlineBorder = true,
+    this.contentPadding,
   })  : assert(items.isNotEmpty, 'Items list must contain at least one item.'),
         assert(
           controller.text.isEmpty || items.contains(controller.text),
@@ -161,6 +164,7 @@ class CustomDropdownState extends State<CustomDropdown> {
             fillColor: widget.fillColor,
             textAlign: widget.textAlign,
             isOutlineBorder: widget.isOutlineBorder,
+            contentPadding: widget.contentPadding,
           ),
         );
       },

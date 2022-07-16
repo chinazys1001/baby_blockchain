@@ -9,9 +9,11 @@ class ReceiverPicker extends StatefulWidget {
   const ReceiverPicker({
     Key? key,
     required this.controller,
+    required this.focusNode,
   }) : super(key: key);
 
   final TextEditingController controller;
+  final FocusNode focusNode;
 
   @override
   State<ReceiverPicker> createState() => _ReceiverPickerState();
@@ -34,7 +36,7 @@ class _ReceiverPickerState extends State<ReceiverPicker> {
     return Material(
       elevation: 4,
       color: LightColor,
-      shadowColor: Colors.blueGrey,
+      shadowColor: ShadowColor,
       borderRadius: bigBorderRadius,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -52,11 +54,12 @@ class _ReceiverPickerState extends State<ReceiverPicker> {
           ),
           const SizedBox(height: 10),
           SizedBox(
-            width: 340,
+            width: 300,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextFormField(
                 controller: widget.controller,
+                focusNode: widget.focusNode,
                 onTap: null,
                 onChanged: (value) {},
                 style: TextStyle(

@@ -41,12 +41,12 @@ class _PendingOperationsScreenState extends State<PendingOperationsScreen> {
       backgroundColor: BackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: AccentColor,
+        backgroundColor: PrimaryColor,
         centerTitle: true,
         title: Text(
           'BabyBlockchain',
           style: GoogleFonts.fredokaOne(
-            color: LightColor,
+            color: PrimaryLightColor,
             fontSize: bigFontSize,
           ),
         ),
@@ -55,6 +55,8 @@ class _PendingOperationsScreenState extends State<PendingOperationsScreen> {
         stream: verifiedAccount!.getPendingOperationsStream(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (!snapshot.hasData) return const LoadingIndicator();
+          robotIDs.clear();
+          receiverIDs.clear();
 
           operations = snapshot.data;
 
@@ -63,6 +65,7 @@ class _PendingOperationsScreenState extends State<PendingOperationsScreen> {
             receiverIDs.add(operation.receiverID);
           }
 
+          if (operations.isEmpty) return const EmptyMempoolBanner();
           return OperationsTable(
             robotIDs: robotIDs,
             receiverIDs: receiverIDs,

@@ -46,11 +46,11 @@ class KeyCard extends StatelessWidget {
     return Material(
       elevation: 4,
       color: LightColor,
-      shadowColor: Colors.blueGrey,
+      shadowColor: ShadowColor,
       borderRadius: bigBorderRadius,
       child: InkWell(
         splashColor: AccentColor.withOpacity(0.5),
-        highlightColor: AccentColor.withOpacity(0.5),
+        highlightColor: AccentColor.withOpacity(0.25),
         borderRadius: bigBorderRadius,
         onTap: _copyKey,
         onLongPress: _copyKey,

@@ -6,6 +6,7 @@ import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/empty_banners.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/loading_indicator.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/loading_overlay.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/robot_card.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class MyRobotsScreen extends StatefulWidget {
 }
 
 class _MyRobotsScreenState extends State<MyRobotsScreen> {
+  ScrollController scrollController = ScrollController();
   List<Robot> robotsList = [];
 
   @override
@@ -35,9 +37,17 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
         );
       });
     } else {
-      robotsList = List.from(verifiedAccount!.robots);
+      _updateRobots();
     }
     super.initState();
+  }
+
+  bool updatedRobots = false;
+  Future<void> _updateRobots() async {
+    await verifiedAccount!.updateAccountRobots().then((value) => setState(() {
+          robotsList = verifiedAccount!.robots.toList();
+          updatedRobots = true;
+        }));
   }
 
   void _createTestBot(BuildContext context) async {
@@ -60,18 +70,28 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
               setState(() {
                 robotsList = List.from(verifiedAccount!.robots);
               });
+              Future.delayed(
+                Duration.zero,
+                () {
+                  scrollController.animateTo(
+                    1.0,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              );
             },
           ),
         );
   }
 
-  double getPadding(BuildContext context) {
+  double _getPadding(BuildContext context) {
     double minDimension = min(
       MediaQuery.of(context).size.width,
       MediaQuery.of(context).size.height,
     );
 
-    if (minDimension < 555) return 40;
+    if (minDimension < 555) return 30;
     return 60;
   }
 
@@ -81,12 +101,12 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
       backgroundColor: BackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: AccentColor,
+        backgroundColor: PrimaryColor,
         centerTitle: true,
         title: Text(
           "BabyBlockchain",
           style: GoogleFonts.fredokaOne(
-            color: LightColor,
+            color: PrimaryLightColor,
             fontSize: bigFontSize,
           ),
         ),
@@ -99,70 +119,78 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
                     onPressed: () {
                       _createTestBot(context);
                     },
-                    icon: const Icon(LineIcons.plus, size: 30),
+                    icon: const Icon(
+                      LineIcons.plus,
+                      color: LightColor,
+                      size: 30,
+                    ),
                   ),
                 ),
               ]
             : null,
       ),
-      body: robotsList.isEmpty
-          ? const NoOwnedRobotsBanner()
-          : GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: MediaQuery.of(context).size.width ~/
-                    (300 + getPadding(context)),
-                mainAxisExtent: 310,
-              ),
-              padding: EdgeInsets.only(
-                left: getPadding(context),
-                bottom: getPadding(context),
-              ),
-              itemCount: robotsList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Align(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: 0,
-                      right: getPadding(context),
-                      top: getPadding(context),
-                      bottom: 0,
-                    ),
-                    child: RobotCard(
-                      robotName: robotsList[index].robotName,
-                      isTestMode: robotsList[index].isTestMode,
-                      context: context,
-                      onNameChanged: (String newRobotName) async {
-                        checkAndShowLoading(
-                          context,
-                          'Renaming: "${robotsList[index].robotName}" to "$newRobotName"...',
-                        );
-                        await verifiedAccount!
-                            .changeRobotName(robotsList[index], newRobotName)
-                            .then((value) {
-                          setState(() {
-                            Navigator.pop(context);
-                          });
-
-                          MotionToast.success(
-                            title: const Padding(
-                              padding: EdgeInsets.only(bottom: 5),
-                              child: Text(
-                                "Robot's name was updated",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            description: Text(
-                              "New robot's " 'name is "$newRobotName"',
-                            ),
-                            toastDuration: const Duration(seconds: 5),
-                          ).show(context);
-                        });
-                      },
-                    ),
+      body: !updatedRobots
+          ? const LoadingIndicator()
+          : robotsList.isEmpty
+              ? const NoOwnedRobotsBanner()
+              : GridView.builder(
+                  controller: scrollController,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: MediaQuery.of(context).size.width ~/
+                        (300 + _getPadding(context)),
+                    mainAxisExtent: 310,
                   ),
-                );
-              },
-            ),
+                  padding: EdgeInsets.only(
+                    left: _getPadding(context),
+                    bottom: _getPadding(context),
+                  ),
+                  itemCount: robotsList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Align(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: 0,
+                          right: _getPadding(context),
+                          top: _getPadding(context),
+                          bottom: 0,
+                        ),
+                        child: RobotCard(
+                          robotName: robotsList[index].robotName,
+                          isTestMode: robotsList[index].isTestMode,
+                          onNameChanged: (String newRobotName) async {
+                            checkAndShowLoading(
+                              context,
+                              'Renaming: "${robotsList[index].robotName}" to "$newRobotName"...',
+                            );
+                            await verifiedAccount!
+                                .changeRobotName(
+                                    robotsList[index], newRobotName)
+                                .then((value) {
+                              setState(() {
+                                Navigator.pop(context);
+                              });
+
+                              MotionToast.success(
+                                title: const Padding(
+                                  padding: EdgeInsets.only(bottom: 5),
+                                  child: Text(
+                                    "Robot's name was updated",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                description: Text(
+                                  "New robot's " 'name is "$newRobotName"',
+                                ),
+                                toastDuration: const Duration(seconds: 5),
+                              ).show(context);
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
       floatingActionButton:
           MediaQuery.of(context).size.width < mobileScreenMaxWidth
               ? null
@@ -174,7 +202,7 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
                     child: FittedBox(
                       child: FloatingActionButton(
                         tooltip: "Create a robot for testing",
-                        backgroundColor: AccentColor,
+                        backgroundColor: PrimaryColor,
                         foregroundColor: LightColor,
                         onPressed: () async {
                           _createTestBot(context);

@@ -154,7 +154,7 @@ class RobotDatabase {
         .then((collection) {
       for (QueryDocumentSnapshot<Map<String, dynamic>> doc in collection.docs) {
         Map<String, dynamic> mapDoc = {
-          "accountID": doc.id,
+          "accountID": doc.id.replaceAll('-', '/'),
           "nonce": doc.get("nonce"),
           "robots": doc.get("robots"),
         };

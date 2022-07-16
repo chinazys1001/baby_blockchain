@@ -47,7 +47,8 @@ class Mempool {
             isEqualTo: transaction.transactionID,
           )
           .get()
-          .then((collection) => exists = collection.docs.isEmpty);
+          .then((collection) =>
+              exists = collection.docs.length > 1); // excluding placeholder
       return exists;
     } catch (e) {
       rethrow;
@@ -86,19 +87,11 @@ class Mempool {
       List<Operation> operations = [];
       await FirebaseFirestore.instance
           .collection("mempool")
-          .where(
-            "operation.senderID",
-            isEqualTo: accountID.replaceAll('/', '-'),
-          ) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .where("operation.senderID", isEqualTo: accountID)
           .get()
           .then((collection) {
         for (var doc in collection.docs) {
-          Map<String, dynamic> operationData = doc.get("operation");
-          operationData["senderID"] =
-              operationData["senderID"].toString().replaceAll('/', '-');
-          operationData["receiverID"] =
-              operationData["receiverID"].toString().replaceAll('/', '-');
-          operations.add(Operation.fromJSON(operationData));
+          operations.add(Operation.fromJSON(doc.get("operation")));
         }
       });
       return operations;
@@ -113,20 +106,14 @@ class Mempool {
     try {
       return FirebaseFirestore.instance
           .collection("mempool")
-          .where(
-            "operation.senderID",
-            isEqualTo: accountID.replaceAll('/', '-'),
-          ) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .where("operation.senderID",
+              isEqualTo:
+                  accountID) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
           .snapshots()
           .map((snapshot) {
         return snapshot.docs.map(
           (doc) {
-            Map<String, dynamic> operationData = doc.get("operation");
-            operationData["senderID"] =
-                operationData["senderID"].toString().replaceAll('/', '-');
-            operationData["receiverID"] =
-                operationData["receiverID"].toString().replaceAll('/', '-');
-            return Operation.fromJSON(operationData);
+            return Operation.fromJSON(doc.get("operation"));
           },
         ).toList();
       });

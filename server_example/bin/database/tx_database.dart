@@ -52,19 +52,11 @@ class TXDatabase {
       List<Operation> operations = [];
       await Firestore.instance
           .collection("txDatabase")
-          .where(
-            "operation.senderID",
-            isEqualTo: accountID.replaceAll('/', '-'),
-          ) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .where("operation.senderID")
           .get()
           .then((collection) {
         for (var doc in collection) {
-          Map<String, dynamic> operationData = doc.map["operation"];
-          operationData["senderID"] =
-              operationData["senderID"].toString().replaceAll('/', '-');
-          operationData["receiverID"] =
-              operationData["receiverID"].toString().replaceAll('/', '-');
-          operations.add(Operation.fromJSON(operationData));
+          operations.add(Operation.fromJSON(doc.map["operation"]));
         }
       });
       return operations;

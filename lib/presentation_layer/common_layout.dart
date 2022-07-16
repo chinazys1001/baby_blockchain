@@ -51,39 +51,56 @@ class _CommonLayoutState extends State<CommonLayout> {
           ],
         ),
         child: GNav(
-          rippleColor: SplashColor,
-          activeColor: AccentColor,
+          rippleColor: RippleColor,
+          activeColor: PrimaryColor,
+          backgroundColor: LightColor,
+          hoverColor: BackgroundColor,
           color: DisabledColor,
-          tabBackgroundColor: ShadowColor,
+          tabBackgroundColor: RippleColor,
           iconSize: 24,
           gap: 8,
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.symmetric(
+              horizontal:
+                  MediaQuery.of(context).size.width < mobileScreenMaxWidth
+                      ? 12
+                      : 24,
+              vertical: 24),
           selectedIndex: _selectedScreen,
           onTabChange: (index) {
             setState(() {
               _selectedScreen = index;
             });
           },
-          tabs: const [
+          tabs: [
             GButton(
               icon: LineIcons.userCog,
-              text: 'Account',
+              text: MediaQuery.of(context).size.width < mobileScreenMaxWidth
+                  ? 'Account'
+                  : 'My Account',
             ),
             GButton(
               icon: LineIcons.robot,
-              text: 'My Robots',
+              text: MediaQuery.of(context).size.width < mobileScreenMaxWidth
+                  ? 'Robots'
+                  : 'My Robots',
             ),
             GButton(
               icon: LineIcons.alternateExchange,
-              text: 'Transfer Rights',
+              text: MediaQuery.of(context).size.width < mobileScreenMaxWidth
+                  ? 'Transfer'
+                  : 'Transfer Rights',
             ),
             GButton(
               icon: LineIcons.spinner,
-              text: 'Pending Operations',
+              text: MediaQuery.of(context).size.width < mobileScreenMaxWidth
+                  ? 'Pending'
+                  : 'Pending Operations',
             ),
             GButton(
               icon: LineIcons.alternateListAlt,
-              text: 'Confirmed Operations',
+              text: MediaQuery.of(context).size.width < mobileScreenMaxWidth
+                  ? 'Confirmed'
+                  : 'Confirmed Operations',
             ),
           ],
         ),

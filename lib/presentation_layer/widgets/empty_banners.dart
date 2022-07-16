@@ -39,7 +39,7 @@ class NoRobotsToTradeBanner extends StatelessWidget {
     return Center(
       child: ListTile(
         title: const Text(
-          '🤯',
+          '🧐',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 50,
@@ -49,7 +49,7 @@ class NoRobotsToTradeBanner extends StatelessWidget {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 10),
           child: Text(
-            'You should own at least one robot\nto be able to transfer ownership...',
+            'No robots to transfer...',
             style: TextStyle(
               fontSize: 24,
               color: Colors.black.withOpacity(0.67),
@@ -101,7 +101,7 @@ class NoOperationsBanner extends StatelessWidget {
     return Center(
       child: ListTile(
         title: const Text(
-          '🧐',
+          '🤯',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 50,

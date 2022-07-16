@@ -137,6 +137,14 @@ class Account {
     return operation;
   }
 
+  /// Updates set of owned robots with the actual value from `robotDatabase`.
+  Future<void> updateAccountRobots() async {
+    robots = await blockchain!.robotDatabase.getRobots(
+      accountID,
+      includeMempool: false,
+    );
+  }
+
   /// Returns all confirmed operations, which were performed by the account.
   Future<List<Operation>> getPendingOperations() async {
     return await blockchain!.mempool.getAccountOperations(accountID);

@@ -5,19 +5,19 @@ const Color LightColor = Colors.white;
 // ignore: constant_identifier_names
 const Color DarkColor = Colors.black;
 // ignore: constant_identifier_names
-const Color AccentColor = Color(0xFF196cb0);
-// ignore: constant_identifier_names
 const Color DisabledColor = Colors.black54;
+// ignore: constant_identifier_names
+const Color PrimaryColor = Color(0xFF041793);
+// ignore: constant_identifier_names
+const Color PrimaryLightColor = Color(0xFF17a9fa);
+// ignore: constant_identifier_names
+const Color AccentColor = Color(0xFFfed513);
 // ignore: non_constant_identifier_names
-Color BackgroundColor = const Color(0xFFc8fefe).withOpacity(0.1);
+Color BackgroundColor = const Color(0xFFbfe1ff).withOpacity(0.1);
 // ignore: non_constant_identifier_names
-Color IndicatorColor = Colors.yellow.shade700;
+Color ShadowColor = const Color(0xFFbfe1ff);
 // ignore: non_constant_identifier_names
-Color AdditionalIndicatorColor = Colors.lightBlue.shade100;
-// ignore: non_constant_identifier_names
-Color ShadowColor = Colors.blueGrey.shade50.withOpacity(0.5);
-// ignore: non_constant_identifier_names
-Color SplashColor = Colors.blueGrey.shade50;
+Color RippleColor = const Color(0xFFbfe1ff).withOpacity(0.25);
 
 const double smallFontSize = 16;
 const double mediumFontSize = 20;

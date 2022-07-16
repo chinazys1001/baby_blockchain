@@ -5,20 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:http/http.dart' as http;
 
 class RobotCard extends StatefulWidget {
   const RobotCard({
     Key? key,
     required this.robotName,
     required this.isTestMode,
-    required this.context,
     required this.onNameChanged,
   }) : super(key: key);
 
   final String robotName;
   final bool isTestMode;
-  final BuildContext context;
   final void Function(String newRobotName) onNameChanged;
 
   @override
@@ -103,10 +100,11 @@ class _RobotCardState extends State<RobotCard> {
               children: [
                 const SizedBox(height: 20),
                 SizedBox(
-                  width: 320,
+                  width: 300,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: CustomDropdown.search(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
                       textAlign: TextAlign.center,
                       hintText: 'New robot name...',
                       items: availableRobotNames,
@@ -114,7 +112,7 @@ class _RobotCardState extends State<RobotCard> {
                       onNoResult: 'Robot not found :(',
                       overlayBorderRadius: 7.0,
                       selectedStyle: GoogleFonts.orbitron(
-                        fontSize: 40,
+                        fontSize: 38,
                         color: DarkColor.withOpacity(0.7),
                         fontWeight: FontWeight.w100,
                       ),
@@ -143,7 +141,7 @@ class _RobotCardState extends State<RobotCard> {
                       MaterialButton(
                         shape: const StadiumBorder(
                             side: BorderSide(
-                          color: AccentColor,
+                          color: PrimaryColor,
                           width: 2,
                         )),
                         padding: EdgeInsets.all(
@@ -165,7 +163,7 @@ class _RobotCardState extends State<RobotCard> {
                                 "Cancel",
                                 style: TextStyle(
                                   fontSize: mediumFontSize,
-                                  color: AccentColor,
+                                  color: PrimaryColor,
                                 ),
                               ),
                             ),
@@ -179,7 +177,7 @@ class _RobotCardState extends State<RobotCard> {
                                     mobileScreenMaxWidth
                                 ? 15
                                 : 20),
-                        color: AccentColor,
+                        color: PrimaryColor,
                         onPressed: () {
                           Navigator.pop(context);
                           if (widget.robotName != robotNameController.text) {
@@ -216,19 +214,12 @@ class _RobotCardState extends State<RobotCard> {
   Widget _getRobotDemo() {
     TextEditingController robotNameController = TextEditingController();
     return InkWell(
-      splashColor: AccentColor.withOpacity(0.5),
-      highlightColor: AccentColor.withOpacity(0.5),
+      splashColor: PrimaryLightColor.withOpacity(0.5),
+      highlightColor: PrimaryLightColor.withOpacity(0.25),
       borderRadius: mediumBorderRadius,
       onTap: () async {
-        await http
-            .post(
-              Uri.parse(
-                'https://server-node-uuts3zsfqa-lm.a.run.app/transaction',
-              ),
-            )
-            .then((value) => print(value.body));
-        // robotNameController.text = widget.robotName;
-        // await checkAndShowNamePickerDialog(context, robotNameController);
+        robotNameController.text = widget.robotName;
+        await checkAndShowNamePickerDialog(context, robotNameController);
       },
       child: SizedBox(
         width: 300,
@@ -239,11 +230,11 @@ class _RobotCardState extends State<RobotCard> {
             const Icon(
               LineIcons.robot,
               size: 160,
-              color: AccentColor,
+              color: PrimaryLightColor,
             ),
             SizedBox(
               height: MediaQuery.of(context).size.width < mobileScreenMaxWidth
-                  ? 5
+                  ? 10
                   : 0,
             ),
             Padding(
@@ -253,13 +244,13 @@ class _RobotCardState extends State<RobotCard> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.orbitron(
-                  fontSize: 40,
+                  fontSize: 38,
                   color: DarkColor.withOpacity(0.7),
                   fontWeight: FontWeight.w100,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -271,14 +262,14 @@ class _RobotCardState extends State<RobotCard> {
     return Material(
       elevation: 4,
       color: LightColor,
-      shadowColor: Colors.blueGrey,
+      shadowColor: ShadowColor,
       borderRadius: mediumBorderRadius,
       child: widget.isTestMode
           ? ClipRect(
               child: Banner(
                 message: "Test Mode",
                 location: BannerLocation.topEnd,
-                color: IndicatorColor,
+                color: AccentColor,
                 child: _getRobotDemo(),
               ),
             )

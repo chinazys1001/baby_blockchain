@@ -3,13 +3,11 @@ import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/loading_indicator.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/sign_up_screen.dart';
 import 'package:baby_blockchain/presentation_layer/common_layout.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:glass/glass.dart';
 import 'package:motion_toast/motion_toast.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -35,58 +33,6 @@ class _SignInScreenState extends State<SignInScreen> {
     }
     super.initState();
   }
-
-  Widget _getBanner() => Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const LoadingIndicator(),
-          const SizedBox(height: 5),
-          Text(
-            "Release date: 15.07.2022",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: bigFontSize,
-              color: LightColor,
-              fontWeight:
-                  MediaQuery.of(context).size.width < mobileScreenMaxWidth
-                      ? FontWeight.bold
-                      : null,
-            ),
-          ),
-          const SizedBox(height: 5),
-          RichText(
-            textAlign: TextAlign.justify,
-            text: TextSpan(
-              style: TextStyle(
-                fontSize: bigFontSize,
-                color: LightColor,
-                fontWeight:
-                    MediaQuery.of(context).size.width < mobileScreenMaxWidth
-                        ? FontWeight.bold
-                        : null,
-              ),
-              children: <TextSpan>[
-                const TextSpan(
-                  text: "Track progress on ",
-                ),
-                TextSpan(
-                  text: 'GitHub',
-                  style: TextStyle(
-                    fontSize: bigFontSize,
-                    color: IndicatorColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () async {
-                      await launchUrlString(
-                          "https://github.com/chinazys1001/baby_blockchain");
-                    },
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
 
   TextEditingController keyTextController = TextEditingController();
   FocusNode keyFocusNode = FocusNode();
@@ -153,7 +99,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: smallBorderRadius,
                         borderSide: BorderSide(
-                          color: BackgroundColor,
+                          color: LightColor.withOpacity(0.5),
                         ),
                       ),
                       focusedBorder: const OutlineInputBorder(
@@ -174,7 +120,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       MediaQuery.of(context).size.width < mobileScreenMaxWidth
                           ? 15
                           : 20),
-                  color: ShadowColor,
+                  color: ShadowColor.withOpacity(0.5),
                   onPressed: () async {
                     await _tryToSignIn();
                   },
@@ -214,9 +160,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       TextSpan(
                         text: 'Create an Account',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: smallFontSize,
-                          color: IndicatorColor,
+                          color: AccentColor,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
@@ -305,9 +251,7 @@ class _SignInScreenState extends State<SignInScreen> {
       backgroundColor: BackgroundColor,
       body: GestureDetector(
         onTap: () {
-          setState(() {
-            keyFocusNode.unfocus();
-          });
+          keyFocusNode.unfocus();
         },
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -318,7 +262,7 @@ class _SignInScreenState extends State<SignInScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          child: kReleaseMode ? _getBanner() : _getLoginForm(),
+          child: _getLoginForm(),
         ),
       ),
     );

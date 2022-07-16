@@ -18,10 +18,10 @@ class LoadingIndicator extends StatelessWidget {
         return DecoratedBox(
           decoration: BoxDecoration(
             color: index % 3 == 1
-                ? IndicatorColor
+                ? AccentColor
                 : index % 3 == 0
-                    ? AdditionalIndicatorColor
-                    : AccentColor,
+                    ? PrimaryLightColor
+                    : PrimaryColor,
             shape: BoxShape.circle,
           ),
         );

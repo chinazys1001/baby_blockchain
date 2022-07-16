@@ -4,6 +4,7 @@ import 'package:baby_blockchain/domain_layer/account.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/key_card.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hex/hex.dart';
@@ -32,18 +33,32 @@ class _AccountScreenState extends State<AccountScreen> {
     super.initState();
   }
 
+  void _signOut(context) {
+    checkAndShowLoading(context, "Signing out");
+    Future.delayed(const Duration(seconds: 1), () {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (_, a1, a2) => const SignInScreen(),
+        ),
+      );
+      verifiedAccount = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: BackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: AccentColor,
+        backgroundColor: PrimaryColor,
         centerTitle: true,
         title: Text(
           'BabyBlockchain',
           style: GoogleFonts.fredokaOne(
-            color: LightColor,
+            color: PrimaryLightColor,
             fontSize: bigFontSize,
           ),
         ),
@@ -54,15 +69,13 @@ class _AccountScreenState extends State<AccountScreen> {
                   child: IconButton(
                     tooltip: "Click to sign out",
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (_, a1, a2) => const SignInScreen(),
-                        ),
-                      );
-                      verifiedAccount = null;
+                      _signOut(context);
                     },
-                    icon: const Icon(LineIcons.alternateSignOut, size: 30),
+                    icon: const Icon(
+                      LineIcons.alternateSignOut,
+                      color: LightColor,
+                      size: 30,
+                    ),
                   ),
                 ),
               ]
@@ -152,16 +165,10 @@ class _AccountScreenState extends State<AccountScreen> {
                     child: FittedBox(
                       child: FloatingActionButton(
                         tooltip: "Click to sign out",
-                        backgroundColor: AccentColor,
+                        backgroundColor: PrimaryColor,
                         foregroundColor: LightColor,
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (_, a1, a2) => const SignInScreen(),
-                            ),
-                          );
-                          verifiedAccount = null;
+                          _signOut(context);
                         },
                         child: const Icon(LineIcons.alternateSignOut),
                       ),

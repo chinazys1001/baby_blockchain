@@ -50,7 +50,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     side: BorderSide(width: 1, color: LightColor),
                   ),
                   color: Colors.transparent,
-                  surfaceTintColor: ShadowColor,
                   clipBehavior: Clip.hardEdge,
                   child: ListTile(
                     onTap: () async {
@@ -137,7 +136,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       MediaQuery.of(context).size.width < mobileScreenMaxWidth
                           ? 15
                           : 20),
-                  color: ShadowColor,
+                  color: ShadowColor.withOpacity(0.5),
                   onPressed: () {
                     Navigator.push(
                       context,

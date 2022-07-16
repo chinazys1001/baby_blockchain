@@ -37,18 +37,14 @@ class _RobotPickerState extends State<RobotPicker> {
           const Icon(
             LineIcons.robot,
             size: 160,
-            color: AccentColor,
+            color: PrimaryLightColor,
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.width < mobileScreenMaxWidth
-                ? 5
-                : 0,
-          ),
-          SizedBox(
-            width: 340,
+            width: 300,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: CustomDropdown.search(
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
                 textAlign: TextAlign.center,
                 hintText: 'Robot to be sent...',
                 items: robotNames,
@@ -56,7 +52,7 @@ class _RobotPickerState extends State<RobotPicker> {
                 onNoResult: 'Robot not found :(',
                 overlayBorderRadius: 7.0,
                 selectedStyle: GoogleFonts.orbitron(
-                  fontSize: 40,
+                  fontSize: 38,
                   color: DarkColor.withOpacity(0.7),
                   fontWeight: FontWeight.w100,
                 ),
@@ -89,14 +85,14 @@ class _RobotPickerState extends State<RobotPicker> {
     return Material(
       elevation: 4,
       color: LightColor,
-      shadowColor: Colors.blueGrey,
+      shadowColor: ShadowColor,
       borderRadius: mediumBorderRadius,
       child: isChosenRobotInTestMode
           ? ClipRect(
               child: Banner(
                 message: "Test Mode",
                 location: BannerLocation.topEnd,
-                color: IndicatorColor,
+                color: AccentColor,
                 child: getRobotForm(),
               ),
             )

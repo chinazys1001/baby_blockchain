@@ -139,8 +139,8 @@ class RobotDatabase {
       // adding robot to robotDatabase
       await Firestore.instance
           .collection("robotDatabase")
-          .document(robot
-              .ownerID) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
+          .document(robot.ownerID.replaceAll('/',
+              '-')) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
           .update({
         "robots": curRobots,
       });
@@ -155,7 +155,8 @@ class RobotDatabase {
       List<dynamic> curRobots = [];
       await Firestore.instance
           .collection("robotDatabase")
-          .document(robot.ownerID.replaceAll('/', '-'))
+          .document(robot.ownerID.replaceAll('/',
+              '-')) // FirebaseFirestore restricts using '/' in doc id => replacing '/' with '-'
           .get()
           .then((doc) => curRobots = List.from(doc.map["robots"]));
 
@@ -183,7 +184,7 @@ class RobotDatabase {
         .then((collection) {
       for (Document doc in collection) {
         Map<String, dynamic> mapDoc = {
-          "accountID": doc.id,
+          "accountID": doc.id.replaceAll('-', '/'),
           "nonce": doc.map["nonce"],
           "robots": doc.map["robots"],
         };

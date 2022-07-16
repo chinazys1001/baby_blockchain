@@ -1,13 +1,12 @@
 import 'package:baby_blockchain/domain_layer/account.dart';
-import 'package:baby_blockchain/domain_layer/blockchain.dart';
 import 'package:baby_blockchain/domain_layer/operation.dart';
 import 'package:baby_blockchain/domain_layer/robot.dart';
 import 'package:baby_blockchain/domain_layer/transaction.dart';
 import 'package:baby_blockchain/presentation_layer/common_layout.dart';
 import 'package:baby_blockchain/presentation_layer/constants.dart';
-import 'package:baby_blockchain/presentation_layer/screens/pending_operations_screen.dart';
 import 'package:baby_blockchain/presentation_layer/screens/registration/sign_in_screen.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/empty_banners.dart';
+import 'package:baby_blockchain/presentation_layer/widgets/loading_indicator.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/receiver_picker.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/robot_picker.dart';
 import 'package:baby_blockchain/presentation_layer/widgets/loading_overlay.dart';
@@ -26,6 +25,7 @@ class TransferRightsScreen extends StatefulWidget {
 class _TransferRightsScreenState extends State<TransferRightsScreen> {
   TextEditingController robotPickerController = TextEditingController();
   TextEditingController receiverPickerController = TextEditingController();
+  FocusNode receiverPickerFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -38,11 +38,22 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
           ),
         );
       });
+    } else {
+      _updateRobots();
     }
     super.initState();
   }
 
+  bool updatedRobots = false;
+  Future<void> _updateRobots() async {
+    await verifiedAccount!.updateAccountRobots().then((value) => setState(() {
+          updatedRobots = true;
+        }));
+  }
+
   void _onConfirmButtonPressed() async {
+    receiverPickerFocusNode.unfocus();
+
     String robotName = robotPickerController.text;
     String receiverID = receiverPickerController.text;
 
@@ -146,7 +157,7 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
   Widget _getConfirmButton() => MaterialButton(
         shape: const StadiumBorder(),
         padding: const EdgeInsets.all(20),
-        color: AccentColor,
+        color: PrimaryColor,
         elevation: 8,
         onPressed: _onConfirmButtonPressed,
         child: Row(
@@ -169,80 +180,91 @@ class _TransferRightsScreenState extends State<TransferRightsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: BackgroundColor,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: AccentColor,
-        centerTitle: true,
-        title: Text(
-          'BabyBlockchain',
-          style: GoogleFonts.fredokaOne(
-            color: LightColor,
-            fontSize: bigFontSize,
+    return GestureDetector(
+      onTap: () {
+        receiverPickerFocusNode.unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: BackgroundColor,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: PrimaryColor,
+          centerTitle: true,
+          title: Text(
+            'BabyBlockchain',
+            style: GoogleFonts.fredokaOne(
+              color: PrimaryLightColor,
+              fontSize: bigFontSize,
+            ),
           ),
         ),
-      ),
-      body: verifiedAccount!.robots.isEmpty
-          ? const NoRobotsToTradeBanner()
-          : MediaQuery.of(context).size.width < 900
-              ? ListView(
-                  shrinkWrap: true,
-                  children: [
-                    const SizedBox(height: 30),
-                    Align(
-                      child: RobotPicker(controller: robotPickerController),
-                    ),
-                    const SizedBox(height: 5),
-                    const Icon(
-                      LineIcons.alternateLongArrowDown,
-                      size: 120,
-                      color: Colors.blueGrey,
-                    ),
-                    const SizedBox(height: 5),
-                    Align(
-                      child: ReceiverPicker(
-                        controller: receiverPickerController,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Align(
-                      child: _getConfirmButton(),
-                    ),
-                    const SizedBox(height: 30),
-                  ],
-                )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(width: 15),
-                        Align(
-                          child: RobotPicker(controller: robotPickerController),
-                        ),
-                        const SizedBox(width: 15),
-                        const Icon(
-                          LineIcons.alternateLongArrowRight,
-                          size: 120,
-                          color: Colors.blueGrey,
-                        ),
-                        const SizedBox(width: 15),
-                        Align(
-                          child: ReceiverPicker(
-                            controller: receiverPickerController,
+        body: !updatedRobots
+            ? const LoadingIndicator()
+            : verifiedAccount!.robots.isEmpty
+                ? const NoRobotsToTradeBanner()
+                : MediaQuery.of(context).size.width < 900
+                    ? ListView(
+                        shrinkWrap: true,
+                        children: [
+                          const SizedBox(height: 30),
+                          Align(
+                            child:
+                                RobotPicker(controller: robotPickerController),
                           ),
-                        ),
-                        const SizedBox(width: 15),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    _getConfirmButton(),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+                          const SizedBox(height: 5),
+                          Icon(
+                            LineIcons.alternateLongArrowDown,
+                            size: 120,
+                            color: ShadowColor,
+                          ),
+                          const SizedBox(height: 15),
+                          Align(
+                            child: ReceiverPicker(
+                              controller: receiverPickerController,
+                              focusNode: receiverPickerFocusNode,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Align(
+                            child: _getConfirmButton(),
+                          ),
+                          const SizedBox(height: 30),
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(width: 15),
+                              Align(
+                                child: RobotPicker(
+                                    controller: robotPickerController),
+                              ),
+                              const SizedBox(width: 15),
+                              Icon(
+                                LineIcons.alternateLongArrowRight,
+                                size: 120,
+                                color: ShadowColor,
+                              ),
+                              const SizedBox(width: 15),
+                              Align(
+                                child: ReceiverPicker(
+                                  controller: receiverPickerController,
+                                  focusNode: receiverPickerFocusNode,
+                                ),
+                              ),
+                              const SizedBox(width: 15),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          _getConfirmButton(),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+      ),
     );
   }
 }
