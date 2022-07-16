@@ -74,7 +74,7 @@ class _MyRobotsScreenState extends State<MyRobotsScreen> {
                 Duration.zero,
                 () {
                   scrollController.animateTo(
-                    1.0,
+                    scrollController.position.maxScrollExtent,
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.easeInOut,
                   );
