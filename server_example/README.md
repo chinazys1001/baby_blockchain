@@ -17,7 +17,7 @@ like this:
 $ dart run bin/server.dart
 ```
 
-The expected output on each POST call from to the server (e.g. https://my-baby-blockchain-server.com/new-transaction):
+The expected output on each POST call to the server (e.g. https://my-server-validator.run.app/new-transaction):
 
 ```
 getting mempool...
@@ -40,7 +40,7 @@ $ docker run -it -p 8080:8080 myserver
 Server listening on port 8080
 ```
 
-The expected output on each POST call from to the server (e.g. https://my-baby-blockchain-server.com/new-transaction):
+The expected output on each POST call to the server (e.g. https://my-server-validator.run.app/new-transaction):
 
 ```
 getting mempool...
