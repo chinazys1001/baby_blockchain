@@ -1,11 +1,29 @@
 ![Flutter](	https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)
 # BabyBlockchain
-Демонстраційний веб-застосунок реалізовано у фрейморці Flutter, для емуляції backend-ресурсів використовується Firebase Firestore. Для підвищення зручності перевірки завдання стисло охарактеризуємо загальну архітектуру проекту:
-- Майже весь "смисловий" код знаходиться у фолдері [/lib](https://github.com/chinazys1001/baby_blockchain/tree/master/lib). Інші файли - це, здебільшого, platform-specific код або конфігуратори використовуваних Flutter/Firebase ресурсів. Єдине, що може бути серед них корисним - файл [pubspec.yaml](https://github.com/chinazys1001/baby_blockchain/blob/master/pubspec.yaml). Там можна знайти повний список використовуваних сторонніх бібліотек, він знакодиться у розділі "dependencies". З документацією цих бібліотек можна ознайомитися на сайті [pub.dev](https://pub.dev).
-- У фолдері [/lib](https://github.com/chinazys1001/baby_blockchain/tree/master/lib) знаходяться файли [main.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/main.dart) (стандартно, це entry point виконання програмного коду, не має "ідейної" складової), [constants.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/constants.dart) (перелік використовуваних константних значень) та фолдери стандартних архітектурних леєрів ([/data_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/data_layer), [/domain_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer), [/presentation_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/presentation_layer)). В [data_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/data_layer) знаходиться програмний код для взаємодії з бекенд-ресурсами, у нашому випадку специфічний для Firebase, в [presentation_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/presentation_layer)) міститься код для конфігурації UI, специфічний для використовуваного фреймворку Flutter. Обидва розглянуті леєри, вочовидь, не несуть дослідницької цінності.
-- А ось в [domain_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer) знаходиться код, що є найбільш важливим в контексті розглянутої задачі. В ньому описана вся бізнес-логіка застосунку, у нашому випадку - впровадження блокчейну та усіх пов'язаних класів/методів/об'єктів. Весь код написано на dart (ця мова програмування належить до C-family). Детальні відомості щодо реалізації та використання кожного класу наведені нижче.
+Для демонстрації використання технології блокчейн ду розв'язуванні поставленої у [ТЗ](https://github.com/chinazys1001/distributed_lab_workshop/tree/main/BabyBlockchain) задачі було створено мінімальний [веб-застосунок](https://baby-blockchain.web.app), в якому показані основні сценарії використання блокчейну - створення користувацького акаунту, обмін цінностями (правами власності на роботів) між акаунтами, встановлення історії здійснених акаунтом операцій і т.д.
+## Принцип роботи
+Реалізована екосистема функціонує наступним чином:
+- Для нових користувачів користувачів генеруються акаунта.
+- В рамках мінімального прикладу вхід в акаунт зареєстрованими користувачами відбувається за значенням приватного ключа, зберігання якого делегується користувачу.
+- Права власності на роботів користувачі можуть отримати двома способами: типу придбати реального робота в магазині (поки що ані робота, ані магазину нема :) ) або отримати права власності на віртуального робота для тестування.
+- Передача роботу R від акаунту А до акаунту В відбувається наступним чином:
 
+    1.  Користувач А обирає обирає робота R та вказує ID акаунту B.
+    2. На клієнті генерується відповідна транзакція та додається в mempool. До підтвердження транзакції акаунт А фактично продовжує володіти роботом R, хоча він і зникає з інтерфейсу застосунку.
+    3. Незалежно від користувацьго веб-застосунку кожні 5 хвилин cloud function виконує перевірка mempool на наявність нових транзакцій. Впродовж наступних 5 хвилин після додання акаунтом А транзакції до mempool цей чекер "помітить" її та тригірне сервер-валідатор.
+    4. Отримавши повідомлення про нові транзакції від чекеру сервер валідатор збирає всі наявні в mempool транакції в блок та здійснює його валідацію. Якщо блок її проходить, то він додається до blockHistory, його транзакції видаляються з mempool та додаються до txDatabase. Якщо якась транзакція не проходить перевірку, вона видаляється з mempool і відбувається наступна спроба створити валідний блок.
+    5. Після підтвердження сервером-валідатором транзакції з операцією передачі робота R від акаунту A до акаунту B дані у robotDatabase (аналог coinDatabase) оновлюються і акаунт B отримує цифрові права власності на робота R.
+- Усі підтверждені надіслані акаунтом транзакції зберігаються в txDatabase та доступні в інтерфейсі застосунку відповідного акаунту.   
+     
+## Реалізація
+Демонстраційний веб-застосунок реалізовано у фрейморці Flutter, для емуляції backend-ресурсів використовується Firebase Firestore. Для підвищення зручності перевірки завдання стисло охарактеризуємо загальну архітектуру проекту:
+- Майже весь "смисловий" код знаходиться у фолдерах [/lib](https://github.com/chinazys1001/baby_blockchain/tree/master/lib) та [/server_example](https://github.com/chinazys1001/baby_blockchain/tree/master/server_example). Інші файли - це, здебільшого, platform-specific код або конфігуратори використовуваних Flutter/Firebase ресурсів. Єдине, що може бути серед них корисним - файл [pubspec.yaml](https://github.com/chinazys1001/baby_blockchain/blob/master/pubspec.yaml). Там можна знайти повний список використовуваних сторонніх бібліотек, він знакодиться у розділі "dependencies". З документацією цих бібліотек можна ознайомитися на сайті [pub.dev](https://pub.dev).
+- У фолдері [/lib](https://github.com/chinazys1001/baby_blockchain/tree/master/lib) знаходяться файли [main.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/main.dart) (стандартно, це entry point виконання програмного коду, не має "ідейної" складової), [constants.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/constants.dart) (перелік використовуваних константних значень) та фолдери стандартних архітектурних леєрів ([/data_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/data_layer), [/domain_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer), [/presentation_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/presentation_layer)). В [data_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/data_layer) знаходиться програмний код для взаємодії з бекенд-ресурсами, у нашому випадку специфічний для Firebase, в [presentation_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/presentation_layer) міститься код для конфігурації UI, специфічний для використовуваного фреймворку Flutter. Обидва розглянуті леєри, вочовидь, не несуть дослідницької цінності.
+- А ось в [domain_layer](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer) знаходиться код, що є найбільш важливим в контексті розглянутої задачі. В ньому описана вся бізнес-логіка застосунку, у нашому випадку - впровадження блокчейну та усіх пов'язаних класів/методів/об'єктів. Весь код написано на dart (ця мова програмування належить до C-family). Детальні відомості щодо реалізації та використання кожного класу наведені нижче.
+- У фолдері [/server_example](https://github.com/chinazys1001/baby_blockchain/tree/master/server_example) знаходиться приклад серверу-валідатора, реалізований на Dart. Більш детальна інформація доступна за [посиланням](https://github.com/chinazys1001/baby_blockchain/blob/master/server_example/README.md). 
+
+# Реалізовані класи для впровадження технології blockchain
 ## Клас KeyPair
 #### [key_pair.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/key_pair.dart)
 Для створення ключової пари використовується Elliptic Curve Cryptography. Опис використовуваної реалізації алгоритму генерації ключової пари наведено в [документації](https://pub.dev/packages/crypton).
@@ -32,15 +50,21 @@
 Об'єкти:
 - __String__ *accountID* - унікальний ідентифікатор, адреса акаунту у системі. Його значення співпадає з public key акаунту.
 - __KeyPair__ *keyPair* - ключова пара акаунту. Відповідно до [Terms of Reference](https://github.com/chinazys1001/distributed_lab_workshop/tree/main/BabyBlockchain#%D0%B0%D0%BA%D0%B0%D1%83%D0%BD%D1%82), кожен акаунт має рівно одну ключову пару. Використання акаунтом ключової пари [описано вище](https://github.com/chinazys1001/baby_blockchain#%D0%BA%D0%BB%D0%B0%D1%81-keypair).
-- __Robot__[] *robots* - "баланс" акаунту (об'єкти класу __Robot__, якими володіє даний акаунт).
+- __Robot[]__ *robots* - "баланс" акаунту (об'єкти класу __Robot__, якими володіє даний акаунт).
 
 Методи:
 - __public satic Account__ *genAccount()* - функція створення нового акаунту: генерація ключової пари акаунту(реалізується класом KeyPair) та пустого списку robots. Новий акаунт додається до __*robotDatabase*__.
 - __public static Account__ *tryToSignInToAccount(*__ECPrivateKey__ *privateKey)* - функція входу до акаунту. "Under the hood" за вказаним при вході приватним ключем отримується відповідна ключова пара. Звідси отримується id акаунту (public key ключової пари. За id акаунту перевіряється наявність даного акаунту в __*robotDatabase*__. Якщо наявність акаунту підтверджується, то список robots синхронізується з __*robotDatabase*__ і користувач заходить в застосунок. В іншому випадку користувачеві повідомляється про помилку у введеному private key.
 - __public void__ *addRobot(*__Robot__ *robot)* - функція додавання права власності на даного робота до акаунту. Використовується при здійсненні операції отримання прав власності.
 - __public void__ *removeRobot(*__Robot__ *robot)* - функція виключення права власності на даного робота списку robots акаунту. Використовується при здійсненні операції передачі прав власності.
+- __public void__ *changeRobotName(Robot robot, String newRobotName) - змінює ім'я вказаного робота, яким володіє даний акаунт. Відповідно оновлюється *robotDatabase*.
 - __public Operation__ *createOperation(*__Account__ *receiver,* __String__ *robotID)* - функція створення операції передачі прав власності на робота з даним *robotID*, яким володіє даний акаунт, до акаунту *receiver*. Функціонал створення операції реалізується класом __Operation__.
 - __public Uint8List__ *signData(*__String__ *data)* - функція створення цифрового підпису вхідних даних акаунтом. Використовується при підключенні до робота (генерації верифікаційного токену) та при продажі (операцію передачі прав власності підписує акаунт-продавець). Функціонал цифрового підпису реалізується класом __Signature__.
+- __public void__ *updateAccountRobots()* - оновлює значення *robots* актуальним значенням за *robotDatabase*. 
+- __public Operation[]__ *getPendingOperations()* - повертає масив непідтверджених операцій з транзакцій *mempool*, де *sender* - даний акаунт.
+- __public Operation[]__ *getConfirmedOperations()* - повертає масив підтверджених операцій з транзакцій *txDatabase*, де *sender* - даний акаунт. 
+- __public Operation[]__ *getConfirmedOperationsStream()* - повертає поток непідтверджених операцій з транзакцій *mempool*, де *sender* - даний акаунт.
+- __public Operation[]__ *getConfirmedOperationsStream()* - повертає поток підтверджених операцій з транзакцій *txDatabase*, де *sender* - даний акаунт.
 - __void__ *printRobots()* - для тестування.
 - __void__ *printAccount()* - для тестування.
 
@@ -69,6 +93,9 @@
 
 Методи:
 - __public static Transaction__ *createTransaction(*__Operation__ *operation)* - функція створення транзакції для даної операції. *Nonce* транзакції = nonce акаунту sender даної операції. *transactionID* транзакції = хеш-значення від *operation* та *nonce*.
+- __public static void__ *addTransactionToMempool(__Transaction__ transaction)* - функція додавання даної транзакції до *mempool*.
+- __public static void__ *executeVerifiedTransaction(__Transaction__ transaction)* - функція виконання даної транзакції. "Under the hood" виконується видалення роботу операції з *robots* акаунту *sender* та додавання цього роботу до акаунту *receiver*. Після цього транзакція видаляється з *mempool* та додається до *txDatabase*.
+- __void__ *printTransaction()* - для тестування.
 
 Оператори:
 - **operator ==**_(other)_ - оператор порівняння двох транзакцій. Дві транзакції вважаються однаковими, якщо їх ID співпадають.
@@ -81,10 +108,38 @@
 - __public static bool__ *matches(*__String__ *value,* __String__ *hash)* - перевіряє, чи є значення *hash* результатом гешування значення *value*.
 
 ## Клас Block
-//TODO
+#### [block.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/block.dart)
+Об'єкти:
+- __String__ *blockID* - унікальний ідентифікатор блока, визначається як хеш-значення від усіх полів блока.
+- __String__ *prevHash* - хеш-значення попереднього блоку в історії.
+- __Transaction[]__ setOfTransactions - транзакції, які включені до даного блоку. 
+- __int__ height - висота блоку (порядковий номер блоку в історії з 0-індексацією).
+
+Методи:
+- __public static Block__ *createBlock(__Transaction[]__ setOfTransactions)* - функція створення блоку, який містить дані транзакції. Значення *prevHash* отримується з актуального стану *blockHistory*.
+- __public void__ *printBlock()* - для тестування.
 
 ## Клас Blockchain
-//TODO
+#### [blockchain.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/blockchain.dart)
+Об'єкти:
+- __RobotDatabase__ *robotDatabase* - для зручної взаємодії з базою даних було створено окремий клас [RobotDatabase](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/data_layer/robot_database.dart). Фактично, це таблиця актуального стану акаунтів системи. Кожному *accountID* відповідають поля з даними акаунту: значення *nonce* (див. клас __Account__) та *robots* (список роботів, якими володіє даний акаунт).
+- __BlockHistory__ *blockHistory* - для зручної взаємодії з базою даних було створено окремий клас [BlockHistory](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/data_layer/block_history.dart). В цій базі даних зберігаються усі блокі, які були додані до історії.
+- __TXDatabase__ *txDatabase* - для зручної взаємодії з базою даних було створено окремий клас [TXDatabase](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/data_layer/txDatabase.dart). В цій базі даних зберігаються усі транзакції, які містяться в тілах блоків у *blockHistory*.
+- __Mempool__ *mempool* - для зручної взаємодії з базою даних було створено окремий клас [Mempool](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/data_layer/txDatabase.dart). В цій базі даних зберігаються транзакції, які ще не були перевірені валідатором. Після кожної перевірки *mempool* очищується. 
+
+Методи:
+- __public static Blockchain__ *initBlockchain()* - функція ініціалізації блокчейну. Під капотом виконується створення генезіс-блоку та додавання його в історію.
+- __public Map<int, Transaction>?__ *validateBlock(__Block__ block)* - виконує 4-крокову перевірку даного блока: 
+    1. Перевірка співпадіння *prevHash* з ID останнього блоку в історії.
+    2. Перевірка для кожної транзакції блоку, що вона ще не була додана до *txDatabase*.
+    3. Перевірка операцій кожної транзації: перевірка підпису акаунту *sender* та факту володіння акаунтом *sender* зазначеним в операції роботом.
+    4. Перевірка блоку на відсутність конфліктующих транзакцій.
+
+    Якщо принаймні одна з наведених вище умов не виконується, блок не є валідним => функція повертає пару значень {ID помилки -> невалідна транзакція} з описанням невалідної транзакції.
+    
+    Якщо всі умови виконуються, кожна транзакція блоку виконується (див. __Transaction__*.executeTransaction(__Transaction__ transaction)*) та функція повертає null.
+- __public void__ *showRobotDatabase()* - для тестування.
+- __public void__ *printBlockchain()* - для тестування.
 
 ## Клас Robot
 #### [robot.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/lib/domain_layer/robot.dart)

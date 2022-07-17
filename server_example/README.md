@@ -1,9 +1,12 @@
-A server app built using [Shelf](https://pub.dev/packages/shelf),
-configured to enable running with [Docker](https://www.docker.com/).
+# General info
 
-This sample code handles HTTP GET requests to `/` and `/echo/<message>`
+An example of server node for [BabyBlockchain](https://github.com/chinazys1001/baby_blockchain).
 
-# Running the sample
+The server gets triggered by a [cloud function](https://github.com/chinazys1001/baby_blockchain/blob/master/functions/index.js) each time new transactions were added to mempool using http POST method. On each request a new block is created and verified. If the block is valid, it is added to *blockHistory*, its transactions are added to *txDatabase* and the *mempool* is cleared up. 
+
+The driver code can be found in [server.dart](https://github.com/chinazys1001/baby_blockchain/blob/master/server_example/bin/server.dart). The blockchain resources ([/blockchain](https://github.com/chinazys1001/baby_blockchain/tree/master/server_example/bin/blockchain) folder) and database-interation tools [/database](https://github.com/chinazys1001/baby_blockchain/tree/master/server_example/bin/database)] are copy-pasted from [lib/domain_layer/](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/domain_layer) and [lib/data_layer/](https://github.com/chinazys1001/baby_blockchain/tree/master/lib/data_layer) respectively. Full documentaion is available in [README](https://github.com/chinazys1001/baby_blockchain/blob/master/server_example/README.md). 
+
+# Running the server
 
 ## Running with the Dart SDK
 
@@ -12,16 +15,19 @@ like this:
 
 ```
 $ dart run bin/server.dart
-Server listening on port 8080
 ```
 
-And then from a second terminal:
+The expected output on each POST call from to the server (e.g. https://my-baby-blockchain-server.com/new-transaction):
+
 ```
-$ curl http://0.0.0.0:8080
-Hello, World!
-$ curl http://0.0.0.0:8080/echo/I_love_Dart
-I_love_Dart
+getting mempool...
+mempool is empty. leaving... // if there are currently no transactions in mempool
+creating block... // if there is at least one transaction in mempool
+validating block...
+clearing up mempool...
+block was successfully validated // if the block verification completed normally
 ```
+
 
 ## Running with Docker
 
@@ -34,16 +40,13 @@ $ docker run -it -p 8080:8080 myserver
 Server listening on port 8080
 ```
 
-And then from a second terminal:
-```
-$ curl http://0.0.0.0:8080
-Hello, World!
-$ curl http://0.0.0.0:8080/echo/I_love_Dart
-I_love_Dart
-```
+The expected output on each POST call from to the server (e.g. https://my-baby-blockchain-server.com/new-transaction):
 
-You should see the logging printed in the first terminal:
 ```
-2021-05-06T15:47:04.620417  0:00:00.000158 GET     [200] /
-2021-05-06T15:47:08.392928  0:00:00.001216 GET     [200] /echo/I_love_Dart
+getting mempool...
+mempool is empty. leaving... // if there are currently no transactions in mempool
+creating block... // if there is at least one transaction in mempool
+validating block...
+clearing up mempool...
+block was successfully validated // if the block verification completed normally
 ```
